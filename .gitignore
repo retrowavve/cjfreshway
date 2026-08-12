@@ -2,36 +2,99 @@
 node_modules/
 .pnp
 .pnp.js
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+jspm_packages/
+bower_components/
+
+# Package manager
+package-lock.json.bak
+.npm
+.pnpm-store/
 
 # Testing
 coverage/
+.nyc_output/
+*.lcov
 
-# Production
+# Production / build output
 build/
 dist/
+out/
+.next/
+.nuxt/
+.output/
+.vercel/
+.netlify/
+.cache/
+.parcel-cache/
+storybook-static/
+.docusaurus/
 
 # Env files
 .env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# ESLint / Stylelint cache
+.eslintcache
+.stylelintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variable files (already covered above, kept for clarity)
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
-# Editor / OS
-.DS_Store
-.vscode/
+# Editor / IDE
+.vscode/*
+!.vscode/extensions.json
 .idea/
-Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-# Next.js
-.next/
-out/
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
 # Misc
 *.local
+*.tgz
+.turbo/
+.vite/
+.rollup.cache/
