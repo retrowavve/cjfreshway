@@ -53,6 +53,8 @@
 
 ### Participation (참여신청)
 
+(Promotion, User) 조합당 유일한 신청 단위. DIRECT는 참여 결과를 이 레코드에 직접 보관하고, ROULETTE는 회차별 결과를 하위 `ParticipationAttempt`에 보관한다(§3-1 참조).
+
 | 속성명 | 타입 | 설명 | 필수 여부 |
 |--------|------|------|-----------|
 | id | ID | 참여신청 식별자 | 필수 |
@@ -61,9 +63,25 @@
 | status | Enum | 참여상태: APPLIED(신청) / CANCELLED(취소) / REAPPLIED(재신청) | 필수 |
 | participatedAt | DateTime | 최초 참여(신청)일시 | 필수 |
 | updatedAt | DateTime | 상태 변경일시 | 필수 |
-| result | Enum | 결과: PENDING(응모완료, 결과 미확정) / WIN(당첨) / LOSE(미당첨) | 필수 |
+| attemptCount | Int | 누적 참여(시도) 횟수. DIRECT는 항상 1, ROULETTE는 시도할 때마다 증가 | 필수 |
+| result | Enum | DIRECT 전용 결과: PENDING(응모완료, 결과 미확정). ROULETTE는 사용하지 않음(null) | DIRECT만 필수 |
 
-> DIRECT는 신청 시 result=PENDING 고정, ROULETTE는 신청 즉시 WIN/LOSE 확정.
+> DIRECT는 신청 시 result=PENDING 고정, attemptCount=1 고정(추가 시도 없음).
+> ROULETTE는 신청마다 result를 쓰지 않고 아래 ParticipationAttempt에 회차별 WIN/LOSE를 기록한다.
+
+### ParticipationAttempt (룰렛 시도 결과) — ROULETTE 전용
+
+동일 Participation 안에서 여러 번 룰렛을 돌릴 수 있으므로, 시도(회차)마다 결과를 별도 레코드로 남긴다.
+
+| 속성명 | 타입 | 설명 | 필수 여부 |
+|--------|------|------|-----------|
+| id | ID | 시도 식별자 | 필수 |
+| participationId | ID | 소속 Participation | 필수 |
+| attemptNo | Int | 시도 회차(1부터 증가) | 필수 |
+| result | Enum | WIN(당첨) / LOSE(미당첨) | 필수 |
+| attemptedAt | DateTime | 시도(룰렛 실행)일시 | 필수 |
+
+> 한 번 생성된 ParticipationAttempt.result는 수정·삭제되지 않는다(재추첨 불가, 규칙4).
 
 ## 4. 엔티티 간 관계
 
@@ -73,6 +91,7 @@
 | Promotion | 1:N | Participation | 하나의 프로모션에 여러 회원이 참여 |
 | Admin | 1:N | Promotion | 관리자가 여러 프로모션을 등록 |
 | (User, Promotion) | 1:1 (Participation 기준) | Participation | 회원-프로모션 조합당 참여신청 레코드는 유일 |
+| Participation | 1:N | ParticipationAttempt | ROULETTE 참여신청 1건이 여러 회차의 룰렛 시도 결과를 가짐(DIRECT는 0건) |
 
 ## 5. 상태 정의
 
@@ -98,14 +117,14 @@
 
 - (프로모션, 거래처) 조합당 Participation 레코드는 **1건만 존재**한다.
 - 취소·재신청은 새 레코드를 생성하지 않고 **기존 레코드의 status를 전환**하여 처리한다.
-- ROULETTE는 재신청 시 재추첨을 허용하지 않는다(규칙 7-4 참조).
+- ROULETTE는 재신청(REAPPLIED) 후에도 maxParticipationCount 범위 내에서 새로운 시도(ParticipationAttempt)를 만들 수 있지만, **이미 생성된 ParticipationAttempt.result는 재추첨하지 않는다**(규칙4).
 
-### Participation.result
+### Participation.result / ParticipationAttempt.result
 
 | 결과값 | 적용 대상 | 설명 |
 |--------|-----------|------|
-| PENDING | DIRECT | 응모 완료, 당첨 여부는 별도 오프라인 발표 |
-| WIN / LOSE | ROULETTE | 룰렛 실행 즉시 확정되는 결과 |
+| PENDING | DIRECT (Participation.result) | 응모 완료, 당첨 여부는 별도 오프라인 발표. 재신청해도 이 값은 그대로 유지 |
+| WIN / LOSE | ROULETTE (ParticipationAttempt.result, 회차별) | 룰렛 실행(시도) 즉시 확정되는 결과. 시도마다 새 레코드로 기록되며 기존 시도의 결과는 변경되지 않는다 |
 
 ## 6. 핵심 유스케이스
 
@@ -130,11 +149,12 @@
 1. 로그인한 사용자만 프로모션에 참여할 수 있다.
 2. status가 ONGOING인 프로모션만 신규 참여가 가능하다.
 3. **참여신청 유일성**: (Promotion, User) 조합당 Participation 레코드는 유일하다. 취소/재신청은 새 레코드가 아닌 기존 레코드의 status 전환으로 처리한다.
-4. **재추첨 불가**: ROULETTE 프로모션의 추첨(WIN/LOSE 확정)은 한 번 생성되면 변경되지 않는다. 재신청(REAPPLIED)이 허용되는 경우에도 참여 가능 횟수 범위 내에서 새로운 추첨이 발생할 뿐, 이미 확정된 결과를 다시 추첨하지 않는다.
-5. **DIRECT 중복응모 제한**: 동일 사용자는 동일 DIRECT 프로모션에 유효 상태(APPLIED/REAPPLIED)로 1건만 참여할 수 있다.
-6. **ROULETTE 최대 참여횟수**: 프로모션별 maxParticipationCount까지만 참여 가능하며, 참여 시 결과가 즉시 생성된다.
+4. **재추첨 불가**: 생성된 ParticipationAttempt.result(WIN/LOSE)는 이후 어떤 경우에도 수정·삭제·재생성되지 않는다. 새 시도는 항상 새 ParticipationAttempt 레코드로만 추가된다.
+5. **DIRECT 중복응모 제한**: 동일 사용자는 동일 DIRECT 프로모션에 유효 상태(APPLIED/REAPPLIED)로 1건만 참여할 수 있다(attemptCount=1 고정, 추가 시도 없음).
+6. **ROULETTE 최대 참여횟수**: Participation.attemptCount는 프로모션별 maxParticipationCount를 초과할 수 없다. 시도(룰렛 실행) 시마다 attemptCount를 1 증가시키고 ParticipationAttempt를 1건 생성하며, 결과는 즉시 확정된다.
 7. 프로모션 종료(ENDED) 이후에도 기존 참여내역과 결과는 계속 조회할 수 있다.
 8. 프로모션 등록/관리는 Admin만 수행할 수 있다.
+9. **조기 종료 시 진행중 참여 보존**: Admin이 프로모션을 조기 종료(status→ENDED)해도, 이미 생성된 Participation·ParticipationAttempt는 변경·삭제되지 않는다. 단, 종료 시점 이후로는 신규 참여 및 추가 시도가 불가하다(규칙2).
 
 ## 8. 예외 케이스
 
@@ -145,7 +165,9 @@
 | DIRECT 프로모션에 이미 APPLIED/REAPPLIED 상태로 참여한 사용자가 재참여 시도 | 중복 응모로 거부 |
 | ROULETTE 참여 횟수가 maxParticipationCount 도달한 사용자가 참여 시도 | 참여 거부 |
 | CANCELLED 상태에서 재신청 | 기존 레코드 status를 REAPPLIED로 전환(새 레코드 생성 아님) |
-| 이미 WIN/LOSE 결과가 확정된 참여건에 대한 재추첨 요청 | 거부(재추첨 불가 규칙) |
+| 이미 WIN/LOSE 결과가 확정된 ParticipationAttempt에 대한 재추첨 요청 | 거부(재추첨 불가 규칙, 규칙4) |
+| ROULETTE에서 attemptCount가 maxParticipationCount에 도달했는데 재신청 후 추가 시도 요청 | 거부(참여 가능 횟수 초과) |
+| Admin이 진행중(ONGOING) 프로모션을 조기 종료 | status를 즉시 ENDED로 전환, 이후 신규 참여·추가 시도만 차단(기존 Participation/ParticipationAttempt는 보존, 규칙9) |
 
 ## 9. MVP 범위
 
@@ -178,4 +200,5 @@
 | ROULETTE | 룰렛형 프로모션 참여 방식 |
 | B2B 고객 / 거래처 담당자 | 식자재를 구매하는 외식업체, 급식업체 등 사업자 소속 회원 |
 | Participation | (프로모션, 거래처) 조합당 유일한 참여신청 레코드. 취소/재신청은 status 전환으로 관리 |
-| 재추첨 불가 | ROULETTE 참여로 한 번 확정된 WIN/LOSE 결과는 다시 추첨하지 않는다는 규칙 |
+| ParticipationAttempt | ROULETTE 참여신청 하나가 가지는 회차별 룰렛 시도 결과 레코드 |
+| 재추첨 불가 | ROULETTE 시도(ParticipationAttempt)로 한 번 확정된 WIN/LOSE 결과는 다시 추첨하지 않는다는 규칙 |
