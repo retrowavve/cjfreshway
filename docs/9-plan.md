@@ -7,6 +7,7 @@
 | v1.0 | 2026-08-13 | 최초 작성: DB/백엔드/프론트엔드 Task 분해 및 실행계획 수립 |
 | v1.1 | 2026-08-13 | Task 의존관계도(mermaid) 추가 |
 | v1.2 | 2026-08-13 | swagger.json과의 정합성 반영: B8 완료조건에 result 필드 추가, B3 필드명 주석(myAttemptCount), B4에 PRD §8 일정 표기 차이 설명 추가 |
+| v1.3 | 2026-08-13 | D1 수행 완료: postgresql-mcp로 5개 테이블·UNIQUE 제약·append-only 트리거 검증, Admin seed 계정 생성. D1 완료 조건 4개 모두 체크 |
 
 `docs/1-domain-definition.md`(엔티티·규칙), `docs/2-PRD.md`(§5 우선순위·§8 3일 일정), `docs/5-project-principle.md`(디렉토리 구조·레이어), `docs/7-wireframe.md`(화면), `docs/8-erd.md`·`docs/8-schema.sql`(스키마)을 전제로 작성.
 
@@ -112,10 +113,10 @@ flowchart LR
 - Admin 초기 계정 seed 스크립트 작성 (`backend/src/seed/`)
 
 **완료 조건**
-- [ ] `users`, `admins`, `promotions`, `participations`, `participation_attempts` 5개 테이블이 생성됨
-- [ ] `participations`에 `UNIQUE (user_id, promotion_id)` 제약이 존재함 (규칙3)
-- [ ] `participation_attempts`에 UPDATE/DELETE 차단 트리거가 동작함 (규칙4) — UPDATE 시도 시 예외 발생 확인
-- [ ] Admin 계정 1건이 seed로 생성되고 bcrypt 해시로 저장됨
+- [x] `users`, `admins`, `promotions`, `participations`, `participation_attempts` 5개 테이블이 생성됨
+- [x] `participations`에 `UNIQUE (user_id, promotion_id)` 제약이 존재함 (규칙3)
+- [x] `participation_attempts`에 UPDATE/DELETE 차단 트리거가 동작함 (규칙4) — UPDATE 시도 시 예외 발생 확인
+- [x] Admin 계정 1건이 seed로 생성되고 bcrypt 해시로 저장됨
 
 ---
 
