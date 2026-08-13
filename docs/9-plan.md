@@ -6,6 +6,7 @@
 |------|------|----------|
 | v1.0 | 2026-08-13 | 최초 작성: DB/백엔드/프론트엔드 Task 분해 및 실행계획 수립 |
 | v1.1 | 2026-08-13 | Task 의존관계도(mermaid) 추가 |
+| v1.2 | 2026-08-13 | swagger.json과의 정합성 반영: B8 완료조건에 result 필드 추가, B3 필드명 주석(myAttemptCount), B4에 PRD §8 일정 표기 차이 설명 추가 |
 
 `docs/1-domain-definition.md`(엔티티·규칙), `docs/2-PRD.md`(§5 우선순위·§8 3일 일정), `docs/5-project-principle.md`(디렉토리 구조·레이어), `docs/7-wireframe.md`(화면), `docs/8-erd.md`·`docs/8-schema.sql`(스키마)을 전제로 작성.
 
@@ -168,13 +169,15 @@ flowchart LR
 **완료 조건**
 - [ ] 목록 API가 ONGOING 상태 프로모션만 반환함
 - [ ] 상세 API가 title, type, description, startAt, endAt, status, maxParticipationCount를 반환함
-- [ ] ROULETTE 상세 조회 시 로그인 사용자의 현재 `attemptCount`가 함께 반환됨 (잔여 횟수 표시용)
+- [ ] ROULETTE 상세 조회 시 로그인 사용자의 현재 `attemptCount`가 함께 반환됨 (잔여 횟수 표시용, API 응답 필드명은 `swagger.json` 기준 `myAttemptCount`)
 
 ---
 
 ## B4. 프로모션 관리 API (Admin)
 
 **선행 Task**: B2
+
+> 참고: PRD §8 일정표는 "등록"을 Day1, "수정/조기종료"를 Day3로 구분 표기하지만, 이는 화면(F7) 노출 시점 기준이다. API(B4)는 등록/수정/조기종료를 한 번에 Day1에 구현하고, 수정·조기종료 화면(F7)만 Day3에 붙인다.
 
 **작업 내용**
 - `POST /admin/promotions` — 등록 (`createdBy` = 로그인 Admin)
@@ -250,7 +253,7 @@ flowchart LR
 - `GET /admin/promotions/:id/participations` — 참여자 목록 및 집계
 
 **완료 조건**
-- [ ] 총 참여자 수와 참여자별(사업체명/담당자/상태/참여일) 목록이 반환됨
+- [ ] 총 참여자 수와 참여자별(사업체명/담당자/상태/결과/참여일) 목록이 반환됨 (`7-wireframe.md` §11)
 - [ ] ROULETTE 프로모션은 WIN/LOSE 집계가 함께 반환됨
 - [ ] Admin 토큰 없이 호출 시 거부됨
 

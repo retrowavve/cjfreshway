@@ -1,0 +1,523 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "응모해 API",
+    "description": "B2B 식자재 유통 고객 대상 프로모션 참여 웹앱 REST API",
+    "version": "1.0.1"
+  },
+  "servers": [
+    { "url": "/api" }
+  ],
+  "tags": [
+    { "name": "Auth", "description": "회원가입/로그인/토큰" },
+    { "name": "Promotions", "description": "프로모션 조회" },
+    { "name": "Participations", "description": "프로모션 참여/참여내역" },
+    { "name": "MyPage", "description": "내 정보" },
+    { "name": "Admin", "description": "관리자 전용" }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "code": { "type": "string", "example": "DUPLICATE_PARTICIPATION" },
+          "message": { "type": "string", "example": "이미 참여한 프로모션입니다." }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "loginId": { "type": "string" },
+          "businessName": { "type": "string" },
+          "name": { "type": "string" },
+          "phone": { "type": "string", "nullable": true },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Admin": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "loginId": { "type": "string" },
+          "name": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "SignupRequest": {
+        "type": "object",
+        "required": ["loginId", "password", "businessName", "name"],
+        "properties": {
+          "loginId": { "type": "string" },
+          "password": { "type": "string" },
+          "businessName": { "type": "string" },
+          "name": { "type": "string" },
+          "phone": { "type": "string" }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": ["loginId", "password"],
+        "properties": {
+          "loginId": { "type": "string" },
+          "password": { "type": "string" }
+        }
+      },
+      "TokenPair": {
+        "type": "object",
+        "properties": {
+          "accessToken": { "type": "string" },
+          "refreshToken": { "type": "string" }
+        }
+      },
+      "RefreshRequest": {
+        "type": "object",
+        "required": ["refreshToken"],
+        "properties": {
+          "refreshToken": { "type": "string" }
+        }
+      },
+      "Promotion": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "title": { "type": "string" },
+          "type": { "type": "string", "enum": ["DIRECT", "ROULETTE"] },
+          "description": { "type": "string" },
+          "startAt": { "type": "string", "format": "date-time" },
+          "endAt": { "type": "string", "format": "date-time" },
+          "status": { "type": "string", "enum": ["UPCOMING", "ONGOING", "ENDED"] },
+          "maxParticipationCount": { "type": "integer" },
+          "createdBy": { "type": "string", "format": "uuid" },
+          "myAttemptCount": {
+            "type": "integer",
+            "description": "ROULETTE 상세 조회 시 로그인 사용자의 현재 시도 횟수(잔여 횟수 표시용)"
+          }
+        }
+      },
+      "PromotionCreateRequest": {
+        "type": "object",
+        "required": ["title", "type", "description", "startAt", "endAt"],
+        "properties": {
+          "title": { "type": "string" },
+          "type": { "type": "string", "enum": ["DIRECT", "ROULETTE"] },
+          "description": { "type": "string" },
+          "startAt": { "type": "string", "format": "date-time" },
+          "endAt": { "type": "string", "format": "date-time" },
+          "maxParticipationCount": {
+            "type": "integer",
+            "description": "ROULETTE만 사용(1 이상). DIRECT는 서버에서 1로 고정"
+          }
+        }
+      },
+      "PromotionUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "startAt": { "type": "string", "format": "date-time" },
+          "endAt": { "type": "string", "format": "date-time" },
+          "maxParticipationCount": { "type": "integer" }
+        }
+      },
+      "ParticipationAttempt": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "attemptNo": { "type": "integer" },
+          "result": { "type": "string", "enum": ["WIN", "LOSE"] },
+          "attemptedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Participation": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "userId": { "type": "string", "format": "uuid" },
+          "promotionId": { "type": "string", "format": "uuid" },
+          "promotionTitle": { "type": "string" },
+          "promotionType": { "type": "string", "enum": ["DIRECT", "ROULETTE"] },
+          "status": { "type": "string", "enum": ["APPLIED", "CANCELLED", "REAPPLIED"] },
+          "participatedAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" },
+          "attemptCount": { "type": "integer" },
+          "result": {
+            "type": "string",
+            "enum": ["PENDING"],
+            "nullable": true,
+            "description": "DIRECT 전용. ROULETTE는 null(회차별 결과는 attempts 참고)"
+          },
+          "attempts": {
+            "type": "array",
+            "description": "ROULETTE 전용 회차별 결과",
+            "items": { "$ref": "#/components/schemas/ParticipationAttempt" }
+          }
+        }
+      },
+      "RouletteResult": {
+        "type": "object",
+        "properties": {
+          "participationId": { "type": "string", "format": "uuid" },
+          "attemptNo": { "type": "integer" },
+          "result": { "type": "string", "enum": ["WIN", "LOSE"] },
+          "attemptCount": { "type": "integer" },
+          "maxParticipationCount": { "type": "integer" }
+        }
+      },
+      "AdminParticipationSummary": {
+        "type": "object",
+        "properties": {
+          "totalCount": { "type": "integer" },
+          "winCount": { "type": "integer", "description": "ROULETTE 프로모션만 포함" },
+          "loseCount": { "type": "integer", "description": "ROULETTE 프로모션만 포함" },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "participationId": { "type": "string", "format": "uuid" },
+                "businessName": { "type": "string" },
+                "name": { "type": "string" },
+                "status": { "type": "string", "enum": ["APPLIED", "CANCELLED", "REAPPLIED"] },
+                "result": {
+                  "type": "string",
+                  "description": "DIRECT: Participation.result(PENDING). ROULETTE: 최신 ParticipationAttempt.result(WIN/LOSE), 시도 없으면 null",
+                  "enum": ["PENDING", "WIN", "LOSE"],
+                  "nullable": true
+                },
+                "participatedAt": { "type": "string", "format": "date-time" }
+              }
+            }
+          }
+        }
+      },
+      "MeUpdateRequest": {
+        "type": "object",
+        "description": "User: businessName/name/phone, Admin: name",
+        "properties": {
+          "businessName": { "type": "string" },
+          "name": { "type": "string" },
+          "phone": { "type": "string" }
+        }
+      },
+      "PasswordChangeRequest": {
+        "type": "object",
+        "required": ["currentPassword", "newPassword"],
+        "properties": {
+          "currentPassword": { "type": "string" },
+          "newPassword": { "type": "string" }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/auth/signup": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "User 회원가입",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SignupRequest" } } }
+        },
+        "responses": {
+          "201": {
+            "description": "가입 성공",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/User" } } }
+          },
+          "400": { "description": "요청값 오류", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "409": { "description": "loginId 중복", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "User/Admin 공통 로그인",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LoginRequest" } } }
+        },
+        "responses": {
+          "200": {
+            "description": "로그인 성공, access/refresh token 발급",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TokenPair" } } }
+          },
+          "401": { "description": "loginId 또는 password 불일치", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "refresh token으로 access token 재발급",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RefreshRequest" } } }
+        },
+        "responses": {
+          "200": {
+            "description": "재발급 성공",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TokenPair" } } }
+          },
+          "401": { "description": "만료/위조된 refresh token", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/promotions": {
+      "get": {
+        "tags": ["Promotions"],
+        "summary": "진행중(ONGOING) 프로모션 목록 조회",
+        "responses": {
+          "200": {
+            "description": "목록",
+            "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Promotion" } } } }
+          }
+        }
+      }
+    },
+    "/promotions/{id}": {
+      "get": {
+        "tags": ["Promotions"],
+        "summary": "프로모션 상세 조회",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }],
+        "responses": {
+          "200": {
+            "description": "상세 (ROULETTE는 로그인 시 myAttemptCount 포함)",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Promotion" } } }
+          },
+          "404": { "description": "존재하지 않는 프로모션", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/promotions/{id}/participate": {
+      "post": {
+        "tags": ["Participations"],
+        "summary": "DIRECT 프로모션 응모",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }],
+        "responses": {
+          "201": {
+            "description": "응모 성공 (status=APPLIED, attemptCount=1, result=PENDING)",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Participation" } } }
+          },
+          "401": { "description": "비로그인", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "존재하지 않는 프로모션", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "409": {
+            "description": "UPCOMING/ENDED 참여 시도(규칙2) 또는 이미 APPLIED/REAPPLIED 상태로 중복 응모(규칙5)",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          }
+        }
+      }
+    },
+    "/promotions/{id}/roulette": {
+      "post": {
+        "tags": ["Participations"],
+        "summary": "ROULETTE 프로모션 시도(Participation 없으면 생성 후 시도)",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }],
+        "responses": {
+          "201": {
+            "description": "시도 성공, attemptCount 1 증가, 결과 즉시 확정",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RouletteResult" } } }
+          },
+          "401": { "description": "비로그인", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "존재하지 않는 프로모션", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "409": {
+            "description": "UPCOMING/ENDED 참여 시도(규칙2) 또는 attemptCount가 maxParticipationCount 도달(규칙6)",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          }
+        }
+      }
+    },
+    "/participations/{id}/cancel": {
+      "patch": {
+        "tags": ["Participations"],
+        "summary": "참여신청 취소 (status → CANCELLED)",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }],
+        "responses": {
+          "200": { "description": "취소 성공", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Participation" } } } },
+          "401": { "description": "비로그인", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "403": { "description": "본인 소유가 아닌 Participation", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "존재하지 않는 참여신청", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/participations/{id}/reapply": {
+      "patch": {
+        "tags": ["Participations"],
+        "summary": "참여신청 재신청 (status → REAPPLIED)",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }],
+        "responses": {
+          "200": { "description": "재신청 성공, 기존 결과는 유지됨", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Participation" } } } },
+          "401": { "description": "비로그인", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "403": { "description": "본인 소유가 아닌 Participation", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "존재하지 않는 참여신청", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "409": { "description": "프로모션이 ONGOING이 아니어서 재신청 불가(규칙2)", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/me/participations": {
+      "get": {
+        "tags": ["Participations"],
+        "summary": "내 참여내역 목록 조회 (ENDED 프로모션 포함)",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "목록",
+            "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Participation" } } } }
+          },
+          "401": { "description": "비로그인", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/me": {
+      "get": {
+        "tags": ["MyPage"],
+        "summary": "내 정보 조회 (User/Admin 공통)",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "내 정보",
+            "content": {
+              "application/json": {
+                "schema": { "oneOf": [{ "$ref": "#/components/schemas/User" }, { "$ref": "#/components/schemas/Admin" }] }
+              }
+            }
+          },
+          "401": { "description": "비로그인", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      },
+      "put": {
+        "tags": ["MyPage"],
+        "summary": "내 정보 수정 (User: businessName/name/phone, Admin: name)",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MeUpdateRequest" } } }
+        },
+        "responses": {
+          "200": {
+            "description": "수정 성공",
+            "content": {
+              "application/json": {
+                "schema": { "oneOf": [{ "$ref": "#/components/schemas/User" }, { "$ref": "#/components/schemas/Admin" }] }
+              }
+            }
+          },
+          "400": { "description": "요청값 오류", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "401": { "description": "비로그인", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/me/password": {
+      "put": {
+        "tags": ["MyPage"],
+        "summary": "비밀번호 변경 (현재 비밀번호 검증 후 변경)",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PasswordChangeRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "변경 성공" },
+          "401": { "description": "비로그인 또는 현재 비밀번호 불일치", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/admin/promotions": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "전체 프로모션 목록 조회 (상태 무관)",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "목록",
+            "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Promotion" } } } }
+          },
+          "401": { "description": "비로그인", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "403": { "description": "Admin 권한 없음", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      },
+      "post": {
+        "tags": ["Admin"],
+        "summary": "프로모션 등록 (createdBy=로그인 Admin)",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PromotionCreateRequest" } } }
+        },
+        "responses": {
+          "201": {
+            "description": "등록 성공, status는 startAt/endAt 기준 자동 산정(UPCOMING/ONGOING)",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Promotion" } } }
+          },
+          "400": { "description": "요청값 오류", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "401": { "description": "비로그인", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "403": { "description": "Admin 권한 없음(규칙8)", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/admin/promotions/{id}": {
+      "put": {
+        "tags": ["Admin"],
+        "summary": "프로모션 수정",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PromotionUpdateRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "수정 성공", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Promotion" } } } },
+          "400": { "description": "요청값 오류", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "401": { "description": "비로그인", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "403": { "description": "Admin 권한 없음(규칙8)", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "존재하지 않는 프로모션", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/admin/promotions/{id}/end": {
+      "patch": {
+        "tags": ["Admin"],
+        "summary": "프로모션 조기 종료 (status → ENDED)",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }],
+        "responses": {
+          "200": {
+            "description": "종료 성공, 기존 Participation/ParticipationAttempt는 보존됨(규칙9)",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Promotion" } } }
+          },
+          "401": { "description": "비로그인", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "403": { "description": "Admin 권한 없음(규칙8)", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "존재하지 않는 프로모션", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/admin/promotions/{id}/participations": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "프로모션 참여 현황 조회 (참여자 목록 및 집계)",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }],
+        "responses": {
+          "200": {
+            "description": "총 참여자 수, 참여자별 목록, ROULETTE는 WIN/LOSE 집계 포함",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AdminParticipationSummary" } } }
+          },
+          "401": { "description": "비로그인", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "403": { "description": "Admin 권한 없음(규칙8)", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "존재하지 않는 프로모션", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    }
+  }
+}
