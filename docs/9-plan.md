@@ -8,6 +8,7 @@
 | v1.1 | 2026-08-13 | Task 의존관계도(mermaid) 추가                                                                                                      |
 | v1.2 | 2026-08-13 | swagger.json과의 정합성 반영: B8 완료조건에 result 필드 추가, B3 필드명 주석(myAttemptCount), B4에 PRD §8 일정 표기 차이 설명 추가 |
 | v1.3 | 2026-08-13 | D1 수행 완료: postgresql-mcp로 5개 테이블·UNIQUE 제약·append-only 트리거 검증, Admin seed 계정 생성. D1 완료 조건 4개 모두 체크    |
+| v1.4 | 2026-08-13 | B1 수행 완료: Express 앱/pool/errorHandler/server 구현, node:test 테스트 6건 전부 통과(커버리지 91.11%), B1 완료 조건 4개 모두 체크 |
 
 `docs/1-domain-definition.md`(엔티티·규칙), `docs/2-PRD.md`(§5 우선순위·§8 3일 일정), `docs/5-project-principle.md`(디렉토리 구조·레이어), `docs/7-wireframe.md`(화면), `docs/8-erd.md`·`docs/8-schema.sql`(스키마)을 전제로 작성.
 
@@ -135,10 +136,10 @@ flowchart LR
 
 **완료 조건**
 
-- [ ] `npm start`로 서버가 기동됨
-- [ ] DB 연결 확인용 요청이 정상 응답함
-- [ ] 에러 응답이 `{ code, message }` 형태로 통일됨
-- [ ] `.env`가 git에 포함되지 않음
+- [x] `npm start`로 서버가 기동됨
+- [x] DB 연결 확인용 요청이 정상 응답함
+- [x] 에러 응답이 `{ code, message }` 형태로 통일됨
+- [x] `.env`가 git에 포함되지 않음
 
 ---
 
