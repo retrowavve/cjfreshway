@@ -5,6 +5,7 @@
 | 버전 | 날짜 | 변경내용 |
 |------|------|----------|
 | v1.0 | 2026-08-13 | 최초 작성 |
+| v1.1 | 2026-08-13 | §4 취소/재신청 사전조건을 wireframe.md와 통일(취소는 상태 무관, 재신청만 ONGOING 필요) |
 
 `docs/2-PRD.md`, `docs/1-domain-definition.md`, `docs/3-usecase.md`를 전제로 MVP 범위 내 사용자 시나리오를 작성.
 
@@ -72,18 +73,19 @@
 
 **액터**: User
 
-**사전조건**: 로그인 완료, 해당 프로모션에 APPLIED 상태의 Participation 존재, 프로모션이 아직 ONGOING
+**사전조건**: 로그인 완료, 해당 프로모션에 APPLIED 상태의 Participation 존재. (취소는 프로모션 상태와 무관하게 가능하나, 재신청은 규칙2에 따라 프로모션이 ONGOING이어야 한다 — 7-wireframe.md §6과 동일)
 
 **기본 흐름**
 1. 내 참여내역 또는 프로모션 상세에서 참여 취소를 요청한다.
 2. 시스템이 기존 Participation 레코드의 status를 CANCELLED로 전환한다(새 레코드 생성 없음).
-3. 사용자가 동일 프로모션에 재신청을 요청한다.
+3. 사용자가 동일 프로모션(ONGOING 상태)에 재신청을 요청한다.
 4. 시스템이 기존 레코드의 status를 REAPPLIED로 전환한다.
 5. (ROULETTE인 경우) REAPPLIED 이후에도 maxParticipationCount 범위 내에서 추가 룰렛 시도가 가능하다. 단 기존에 확정된 ParticipationAttempt.result는 그대로 유지된다.
    (DIRECT인 경우) result=PENDING 값은 재신청 후에도 그대로 유지된다.
 
 **예외/대안 흐름**
 - CANCELLED 상태에서 재신청 시 새 레코드가 아닌 기존 레코드의 status만 REAPPLIED로 전환된다.
+- 프로모션이 UPCOMING/ENDED 상태일 때 재신청을 시도하면 규칙2에 따라 거부한다(취소 자체는 거부되지 않음).
 - ROULETTE에서 attemptCount가 이미 maxParticipationCount에 도달한 상태로 재신청 후 추가 시도를 요청하면 거부한다.
 
 **관련 도메인 규칙**: 규칙3(참여신청 유일성), 규칙4(재추첨 불가), 규칙6(ROULETTE 최대 참여횟수)

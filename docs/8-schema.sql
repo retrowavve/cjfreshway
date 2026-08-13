@@ -44,7 +44,7 @@ CREATE TABLE participations (
     status           VARCHAR(20) NOT NULL CHECK (status IN ('APPLIED', 'CANCELLED', 'REAPPLIED')),
     participated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
-    attempt_count    INT NOT NULL DEFAULT 0,
+    attempt_count    INT NOT NULL DEFAULT 0, -- 참여 생성 INSERT 시 애플리케이션이 항상 명시값(DIRECT=1, ROULETTE>=1)을 채운다
     result           VARCHAR(20) CHECK (result IS NULL OR result = 'PENDING'),
     UNIQUE (user_id, promotion_id)
 );
