@@ -1,8 +1,19 @@
 *, *::before, *::after {
   box-sizing: border-box;
 }
+html {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Pretendard",
+    "Noto Sans KR", "Malgun Gothic", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+button, input, textarea, select {
+  font: inherit;
+  color: inherit;
+}
 body {
   margin: 0;
+  background: var(--color-bg-subtle);
+  color: var(--color-text-primary);
 }
 
 :root {
@@ -15,6 +26,8 @@ body {
   --color-badge-important: #E8536E;
   --color-badge-important-bg: #FDE8EC;
   --color-white: #FFFFFF;
+  --shadow-sm: 0 1px 2px rgba(20, 20, 20, 0.06);
+  --shadow-md: 0 6px 16px rgba(20, 20, 20, 0.08);
 }
 
 .auth-page {
@@ -29,7 +42,8 @@ body {
   max-width: 360px;
   background: var(--color-white);
   border: 1px solid var(--color-border);
-  border-radius: 4px;
+  border-radius: 10px;
+  box-shadow: var(--shadow-md);
   padding: 32px 24px;
   display: flex;
   flex-direction: column;
@@ -52,17 +66,53 @@ body {
   height: 36px;
   padding: 0 10px;
   border: 1px solid var(--color-border);
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 14px;
+  transition: border-color 0.15s ease;
+}
+.auth-form input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+.auth-form textarea {
+  min-height: 96px;
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 14px;
+  resize: vertical;
+  transition: border-color 0.15s ease;
+}
+.auth-form textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+.auth-form input[type=radio] {
+  height: auto;
+  width: auto;
+  accent-color: var(--color-primary);
+}
+.radio-group {
+  display: flex;
+  gap: 20px;
+}
+.auth-form label.radio-label {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  cursor: pointer;
 }
 .auth-form button[type=submit] {
   height: 36px;
   background: var(--color-primary);
   color: var(--color-white);
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
+  transition: background-color 0.15s ease;
 }
 .auth-form button[type=submit]:hover:not(:disabled) {
   background: var(--color-primary-dark);
@@ -96,15 +146,45 @@ body {
 .promotion-header {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 12px;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 .promotion-header h1 {
   font-size: 20px;
-  font-weight: bold;
+  font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: -0.01em;
+}
+.promotion-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.account-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+.account-badge strong {
   color: var(--color-text-primary);
+  font-weight: 600;
+}
+.account-badge-role {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-size: 11px;
+  font-weight: 600;
 }
 .promotion-section-title {
   font-size: 16px;
@@ -122,14 +202,17 @@ body {
   flex-direction: column;
   gap: 8px;
   border: 1px solid var(--color-border);
-  border-radius: 4px;
+  border-radius: 10px;
   padding: 16px;
   background: var(--color-white);
+  box-shadow: var(--shadow-sm);
   text-decoration: none;
   color: inherit;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
 .promotion-card:hover {
-  background: var(--color-bg-subtle);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 .promotion-badge {
   display: inline-block;
@@ -212,14 +295,16 @@ body {
   background: var(--color-primary);
   color: var(--color-white);
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   text-decoration: none;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
 }
 .roulette-spinner {
   display: inline-block;
@@ -268,9 +353,10 @@ body {
   flex-direction: column;
   gap: 8px;
   border: 1px solid var(--color-border);
-  border-radius: 4px;
+  border-radius: 10px;
   padding: 16px;
   background: var(--color-bg-subtle);
+  box-shadow: var(--shadow-sm);
 }
 .roulette-result-label {
   font-size: 13px;
@@ -289,6 +375,11 @@ body {
 
 .myp-table-wrap {
   overflow-x: auto;
+  overflow-y: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-sm);
+  background: var(--color-white);
 }
 .myp-table {
   width: 100%;
@@ -296,11 +387,21 @@ body {
   border-collapse: collapse;
   font-size: 14px;
 }
+.myp-table tr:last-child td {
+  border-bottom: none;
+}
 .myp-table th {
   background: var(--color-bg-subtle);
   text-align: center;
-  padding: 10px 12px;
+  padding: 12px;
+  font-weight: 600;
   border-bottom: 1px solid var(--color-border);
+}
+.myp-table tbody tr {
+  transition: background-color 0.1s ease;
+}
+.myp-table tbody tr:hover {
+  background: var(--color-bg-subtle);
 }
 .myp-table th:first-child {
   text-align: left;
@@ -332,13 +433,15 @@ body {
   background: var(--color-white);
   color: var(--color-text-primary);
   border: 1px solid var(--color-border);
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   text-decoration: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 .btn-secondary:hover:not(:disabled) {
   background: var(--color-bg-subtle);
@@ -349,6 +452,15 @@ body {
 }
 .mypage-page {
   max-width: 720px;
+}
+.mypage-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.mypage-title-row .promotion-section-title {
+  margin-bottom: 0;
 }
 .mypage-layout {
   display: flex;

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { httpClient, ApiError } from '../api/httpClient';
+import { useAuthStore } from '../stores/authStore';
 import type { Promotion } from '../types';
 
 function formatDate(iso: string): string {
@@ -25,6 +26,7 @@ function statusBadgeClass(status: Promotion['status']): string {
 }
 
 export default function AdminPromotionList() {
+  const user = useAuthStore((s) => s.user);
   const queryClient = useQueryClient();
   const { data: promotions, isLoading, isError } = useQuery({
     queryKey: ['adminPromotions'],
@@ -41,6 +43,12 @@ export default function AdminPromotionList() {
       <div className="admin-list-header">
         <h1 className="promotion-section-title">프로모션 관리</h1>
         <div className="admin-list-header-actions">
+          {user && (
+            <span className="account-badge">
+              <strong>{user.loginId}</strong>
+              <span className="account-badge-role">관리자</span>
+            </span>
+          )}
           <Link to="/me" className="btn-secondary">마이페이지</Link>
           <Link to="/admin/promotions/new" className="btn-primary">+ 신규 등록</Link>
         </div>

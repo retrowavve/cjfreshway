@@ -91,9 +91,9 @@ export default function AdminPromotionForm() {
       <form className="auth-form admin-form" onSubmit={handleSubmit}>
         <h1 className="promotion-section-title">{isEdit ? '프로모션 수정' : '프로모션 등록'}</h1>
         <label>프로모션명<input name="title" value={form.title} onChange={handleChange} required /></label>
-        <div>
-          <label><input type="radio" name="type" value="DIRECT" checked={form.type === 'DIRECT'} disabled={isEdit} onChange={handleTypeChange} /> DIRECT</label>
-          <label><input type="radio" name="type" value="ROULETTE" checked={form.type === 'ROULETTE'} disabled={isEdit} onChange={handleTypeChange} /> ROULETTE</label>
+        <div className="radio-group">
+          <label className="radio-label"><input type="radio" name="type" value="DIRECT" checked={form.type === 'DIRECT'} disabled={isEdit} onChange={handleTypeChange} /> DIRECT</label>
+          <label className="radio-label"><input type="radio" name="type" value="ROULETTE" checked={form.type === 'ROULETTE'} disabled={isEdit} onChange={handleTypeChange} /> ROULETTE</label>
         </div>
         <label>시작일시<input type="datetime-local" name="startAt" value={form.startAt} onChange={handleChange} required /></label>
         <label>종료일시<input type="datetime-local" name="endAt" value={form.endAt} onChange={handleChange} required /></label>

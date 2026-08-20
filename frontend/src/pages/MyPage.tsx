@@ -23,7 +23,10 @@ export default function MyPage() {
       <Link to={role === 'ADMIN' ? '/admin/promotions' : '/'} className="promotion-back">
         ← {role === 'ADMIN' ? '프로모션 관리' : '프로모션 목록'}
       </Link>
-      <h1 className="promotion-section-title">마이페이지</h1>
+      <div className="mypage-title-row">
+        <h1 className="promotion-section-title">마이페이지</h1>
+        <span className="account-badge-role">{role === 'ADMIN' ? '관리자' : '일반회원'}</span>
+      </div>
       <div className="mypage-layout">
         <section>
           {isLoading && <p>불러오는 중...</p>}

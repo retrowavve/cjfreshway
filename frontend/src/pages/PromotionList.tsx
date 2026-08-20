@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { httpClient } from '../api/httpClient';
+import { useAuthStore } from '../stores/authStore';
 import type { Promotion } from '../types';
 
 function formatDate(iso: string): string {
@@ -25,6 +26,7 @@ function statusBadgeClass(status: Promotion['status']): string {
 }
 
 export default function PromotionList() {
+  const user = useAuthStore((s) => s.user);
   const { data, isLoading, isError } = useQuery({
     queryKey: ['promotions'],
     queryFn: () => httpClient.get<Promotion[]>('/promotions'),
@@ -34,7 +36,15 @@ export default function PromotionList() {
     <div className="promotion-page">
       <header className="promotion-header">
         <h1>응모해</h1>
-        <Link to="/me" className="btn-secondary">마이페이지</Link>
+        <div className="promotion-header-actions">
+          {user && (
+            <span className="account-badge">
+              <strong>{user.loginId}</strong>
+              <span className="account-badge-role">일반회원</span>
+            </span>
+          )}
+          <Link to="/me" className="btn-secondary">마이페이지</Link>
+        </div>
       </header>
       <h2 className="promotion-section-title">진행중인 프로모션</h2>
       {isLoading && <p>불러오는 중...</p>}
