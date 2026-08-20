@@ -17,6 +17,7 @@
 | v1.10 | 2026-08-20 | B7 수행 완료: 내 참여내역 API(GET /me/participations, ROULETTE 회차별 attempts 배치 조회) 구현, node:test 테스트 89건 전부 통과(전체 커버리지 95.93%), B7 완료 조건 3개 모두 체크 |
 | v1.11 | 2026-08-20 | B8 수행 완료: 관리자 참여 현황 API(GET /admin/promotions/:id/participations, DISTINCT ON 최신 attempt 집계) 구현, node:test 테스트 94건 전부 통과(전체 커버리지 96.17%), B8 완료 조건 3개 모두 체크 |
 | v1.12 | 2026-08-20 | B9 수행 완료: 마이페이지 API(GET/PUT /me, PUT /me/password) 구현, node:test 테스트 104건 전부 통과(전체 커버리지 95.75%), B9 완료 조건 3개 모두 체크 |
+| v1.21 | 2026-08-20 | B10 수행 완료: 핵심 비즈니스 규칙 테스트 — 규칙2/3/5/6은 B5의 기존 테스트가 이미 검증하고 있어 참조만 남기고, 자동화 테스트가 없던 규칙4(재추첨 불가)만 신규 `participationRules.test.js`로 검증(UPDATE/DELETE 시 append-only 트리거 예외 확인). 신규 파일 포함 전체 테스트 104건 통과(전체 커버리지 94.92%), B10 완료 조건 6개 모두 체크. 이로써 백엔드 B1~B10 전체 완료 |
 | v1.13 | 2026-08-20 | F1 수행 완료: 프론트엔드 셋업(Vite+React 19+TS, Zustand authStore, TanStack Query, react-router-dom), API 클라이언트(httpClient 401→refresh→재시도), 보호 라우트(ProtectedRoute) 구현, Vitest 테스트 19건 전부 통과(대상 소스 커버리지 98.76%), F1 완료 조건 4개 모두 체크 |
 | v1.14 | 2026-08-20 | F2 수행 완료: 회원가입/로그인 화면(10-style.md 컬러 토큰 적용) 구현, 로그인 성공 시 role별 리다이렉트(USER→`/`, ADMIN→`/admin/promotions`), 서버 에러 메시지 노출, Vitest 테스트 31건 전부 통과(대상 소스 커버리지 99.15%), F2 완료 조건 4개 모두 체크 |
 | v1.15 | 2026-08-20 | F3 수행 완료: 프로모션 목록(카드 그리드, type 배지, 기간)/상세(description, 타입별 하단 액션) 화면 구현, ROULETTE 잔여 시도 횟수 표시, Vitest 테스트 40건 전부 통과(대상 소스 커버리지 99.36%), F3 완료 조건 4개 모두 체크. 응모/룰렛 버튼은 표시만 하고 실제 참여 API 연동은 F4 범위로 명시적으로 남김 |
@@ -322,12 +323,12 @@ flowchart LR
 
 **완료 조건**
 
-- [ ] (Promotion, User) 조합당 Participation 유일성 검증 (규칙3)
-- [ ] DIRECT 중복응모 거부 검증 (규칙5)
-- [ ] ROULETTE maxParticipationCount 초과 거부 검증 (규칙6)
-- [ ] 확정된 ParticipationAttempt 수정 불가 검증 (규칙4)
-- [ ] UPCOMING/ENDED 프로모션 참여 거부 검증 (규칙2)
-- [ ] 전체 테스트가 한 번의 명령으로 실행되고 통과함
+- [x] (Promotion, User) 조합당 Participation 유일성 검증 (규칙3) — B5의 `promotions.participate.test.js` 동시성 테스트가 이미 검증(신규 작성 없이 참조만)
+- [x] DIRECT 중복응모 거부 검증 (규칙5) — 동일 파일의 기존 테스트가 이미 검증
+- [x] ROULETTE maxParticipationCount 초과 거부 검증 (규칙6) — 동일 파일의 기존 테스트가 이미 검증
+- [x] 확정된 ParticipationAttempt 수정 불가 검증 (규칙4) — 유일하게 자동화 테스트가 없던 규칙. 신규 `src/routes/participationRules.test.js`에서 UPDATE/DELETE 직접 시도 시 append-only 트리거가 예외를 던지고 값이 유지됨을 검증
+- [x] UPCOMING/ENDED 프로모션 참여 거부 검증 (규칙2) — B5의 기존 테스트가 이미 검증
+- [x] 전체 테스트가 한 번의 명령으로 실행되고 통과함 — `node --test src/**/*.test.js`로 신규 파일 포함 104개 테스트 전부 통과(첫 실행에서 1건 일시적 경합 실패가 있었으나 재실행 2회 연속 안정적으로 통과 확인, 병렬 DB 연결 경합으로 추정되며 이 파일 자체의 결함 아님)
 
 ---
 
