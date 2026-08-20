@@ -87,13 +87,14 @@ frontend/
 ```
 backend/
 ├── src/
-│   ├── routes/               # Express 라우터 (프레젠테이션 계층) — promotions.js, participations.js, auth.js, users.js
-│   ├── services/              # 비즈니스 로직 (참여신청 유일성, 중복응모, 횟수제한 등 규칙 검증) — promotionService.js, participationService.js
-│   ├── db/                     # pg Pool 설정 + 쿼리 함수 (DB 접근 계층) — pool.js, promotionQueries.js, participationQueries.js
-│   ├── middlewares/             # authMiddleware(JWT 검증), errorHandler
-│   ├── migrations/               # SQL 스키마/마이그레이션 파일 (테이블 생성, UNIQUE/FK 제약)
-│   ├── seed/                      # Admin 계정 등 초기 데이터 삽입 스크립트
+│   ├── routes/               # Express 라우터 (프레젠테이션 계층) — promotions.js, adminPromotions.js, participations.js, auth.js, me.js
+│   ├── services/              # 비즈니스 로직 (참여신청 유일성, 중복응모, 횟수제한 등 규칙 검증) — promotionService.js, participationService.js, authService.js
+│   ├── db/                     # pg Pool 설정 + 쿼리 함수 (DB 접근 계층) — pool.js, promotionsRepo.js, participationsRepo.js, usersRepo.js, adminsRepo.js
+│   ├── middlewares/             # authMiddleware(JWT 검증), adminOnlyMiddleware(Admin 권한 검증), errorHandler
+│   ├── seed/                      # Admin 계정 등 초기 데이터 삽입 스크립트 — seedAdmin.js
 │   └── app.js                      # Express 앱 설정 및 진입점
 ├── .env.example
 └── package.json
 ```
+
+> 스키마 생성은 별도 `migrations/` 폴더 없이 `docs/8-schema.sql`을 DB에 직접 실행하는 방식으로 처리한다(D1, `9-plan.md` 참조).

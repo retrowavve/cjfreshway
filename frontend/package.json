@@ -1,0 +1,33 @@
+{
+  "name": "cjfreshway-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "test": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5",
+    "react": "^19",
+    "react-dom": "^19",
+    "react-router-dom": "^6",
+    "zustand": "^5"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6",
+    "@testing-library/react": "^16",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^4",
+    "@vitest/coverage-v8": "^2",
+    "jsdom": "^25",
+    "typescript": "^5",
+    "vite": "^5",
+    "vitest": "^2"
+  },
+  "allowScripts": {
+    "esbuild@0.21.5": true
+  }
+}

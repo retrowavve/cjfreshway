@@ -17,6 +17,7 @@
 | v1.10 | 2026-08-20 | B7 수행 완료: 내 참여내역 API(GET /me/participations, ROULETTE 회차별 attempts 배치 조회) 구현, node:test 테스트 89건 전부 통과(전체 커버리지 95.93%), B7 완료 조건 3개 모두 체크 |
 | v1.11 | 2026-08-20 | B8 수행 완료: 관리자 참여 현황 API(GET /admin/promotions/:id/participations, DISTINCT ON 최신 attempt 집계) 구현, node:test 테스트 94건 전부 통과(전체 커버리지 96.17%), B8 완료 조건 3개 모두 체크 |
 | v1.12 | 2026-08-20 | B9 수행 완료: 마이페이지 API(GET/PUT /me, PUT /me/password) 구현, node:test 테스트 104건 전부 통과(전체 커버리지 95.75%), B9 완료 조건 3개 모두 체크 |
+| v1.13 | 2026-08-20 | F1 수행 완료: 프론트엔드 셋업(Vite+React 19+TS, Zustand authStore, TanStack Query, react-router-dom), API 클라이언트(httpClient 401→refresh→재시도), 보호 라우트(ProtectedRoute) 구현, Vitest 테스트 19건 전부 통과(대상 소스 커버리지 98.76%), F1 완료 조건 4개 모두 체크 |
 
 `docs/1-domain-definition.md`(엔티티·규칙), `docs/2-PRD.md`(§5 우선순위·§8 3일 일정), `docs/5-project-principle.md`(디렉토리 구조·레이어), `docs/7-wireframe.md`(화면), `docs/8-erd.md`·`docs/8-schema.sql`(스키마)을 전제로 작성.
 
@@ -336,10 +337,10 @@ flowchart LR
 
 **완료 조건**
 
-- [ ] 개발 서버가 기동되고 빈 라우트가 렌더링됨
-- [ ] QueryClientProvider가 앱 최상단에 설정됨
-- [ ] API 클라이언트가 access token을 자동 첨부하고, 401 시 refresh 후 1회 재시도함
-- [ ] 미인증 상태로 보호 라우트 접근 시 로그인 화면으로 리다이렉트됨
+- [x] 개발 서버가 기동되고 빈 라우트가 렌더링됨 — Vite dev 서버 5173 포트 기동 확인, router 테스트로 placeholder 페이지 렌더 검증
+- [x] QueryClientProvider가 앱 최상단에 설정됨 — `App.tsx`에서 `RouterProvider`를 감싸는 최상단에 배치
+- [x] API 클라이언트가 access token을 자동 첨부하고, 401 시 refresh 후 1회 재시도함 — `httpClient.ts`, 재시도 성공/실패/무한루프 방지 케이스 포함 테스트 9건 통과
+- [x] 미인증 상태로 보호 라우트 접근 시 로그인 화면으로 리다이렉트됨 — `ProtectedRoute`, role 불일치 시 `/`로 리다이렉트도 함께 검증
 
 ---
 
