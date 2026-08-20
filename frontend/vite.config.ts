@@ -12,7 +12,6 @@ export default defineConfig({
       provider: 'v8',
       include: ['src/**'],
       exclude: [
-        'src/pages/**',
         'src/types/**',
         'src/main.tsx',
         'src/App.tsx',

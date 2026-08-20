@@ -18,6 +18,13 @@
 | v1.11 | 2026-08-20 | B8 수행 완료: 관리자 참여 현황 API(GET /admin/promotions/:id/participations, DISTINCT ON 최신 attempt 집계) 구현, node:test 테스트 94건 전부 통과(전체 커버리지 96.17%), B8 완료 조건 3개 모두 체크 |
 | v1.12 | 2026-08-20 | B9 수행 완료: 마이페이지 API(GET/PUT /me, PUT /me/password) 구현, node:test 테스트 104건 전부 통과(전체 커버리지 95.75%), B9 완료 조건 3개 모두 체크 |
 | v1.13 | 2026-08-20 | F1 수행 완료: 프론트엔드 셋업(Vite+React 19+TS, Zustand authStore, TanStack Query, react-router-dom), API 클라이언트(httpClient 401→refresh→재시도), 보호 라우트(ProtectedRoute) 구현, Vitest 테스트 19건 전부 통과(대상 소스 커버리지 98.76%), F1 완료 조건 4개 모두 체크 |
+| v1.14 | 2026-08-20 | F2 수행 완료: 회원가입/로그인 화면(10-style.md 컬러 토큰 적용) 구현, 로그인 성공 시 role별 리다이렉트(USER→`/`, ADMIN→`/admin/promotions`), 서버 에러 메시지 노출, Vitest 테스트 31건 전부 통과(대상 소스 커버리지 99.15%), F2 완료 조건 4개 모두 체크 |
+| v1.15 | 2026-08-20 | F3 수행 완료: 프로모션 목록(카드 그리드, type 배지, 기간)/상세(description, 타입별 하단 액션) 화면 구현, ROULETTE 잔여 시도 횟수 표시, Vitest 테스트 40건 전부 통과(대상 소스 커버리지 99.36%), F3 완료 조건 4개 모두 체크. 응모/룰렛 버튼은 표시만 하고 실제 참여 API 연동은 F4 범위로 명시적으로 남김 |
+| v1.16 | 2026-08-20 | F4 수행 완료: DIRECT 응모(PENDING 표시, 409 거부 사유 노출)/ROULETTE 실행(WIN·LOSE·회차·잔여횟수 결과 카드, 소진 시 버튼 미노출, mutation.isPending으로 중복클릭 방지) 구현, Vitest 테스트 46건 전부 통과(대상 소스 커버리지 98.61%), F4 완료 조건 5개 모두 체크 |
+| v1.17 | 2026-08-20 | F5 수행 완료: 내 참여내역 표(프로모션명/방식/상태/결과/참여일/액션), ROULETTE 회차별 결과, 취소/재신청 mutation(재조회 방식으로 상태 갱신) 구현, Vitest 테스트 54건 전부 통과(대상 소스 커버리지 99.11%), F5 완료 조건 5개 모두 체크 |
+| v1.18 | 2026-08-20 | F6 수행 완료: 마이페이지(정보 조회/수정, User·Admin 필드 분기, 비밀번호 변경 후 로그아웃→재로그인 유도, User 전용 참여내역 링크) 구현, Vitest 테스트 61건 전부 통과(대상 소스 커버리지 98.72%), F6 완료 조건 3개 모두 체크 |
+| v1.19 | 2026-08-20 | F7 수행 완료: 관리자 화면 3종(프로모션 등록/수정 폼 — type ROULETTE만 maxParticipationCount 노출·수정 시 type 변경불가, 프로모션 목록 관리 — ONGOING만 조기종료 버튼·confirm 후 PATCH, 참여 현황 — 참여자 수/목록/ROULETTE WIN·LOSE 집계) 구현, Vitest 테스트 77건 전부 통과(대상 소스 커버리지 98.68%), F7 완료 조건 4개 모두 체크 |
+| v1.20 | 2026-08-20 | F8 수행 완료: 반응형 스타일 점검 — 전역 box-sizing/body margin 리셋 누락 발견해 추가(모바일 가로 스크롤 위험 제거), 표 화면 3종의 컨테이너 스크롤 패턴 재확인, 헤더/요약 영역 flex-wrap 보강. Vitest 77건 전부 통과(회귀 없음), F8 완료 조건 3개 모두 체크. 프론트엔드 F1~F8 전체 완료 |
 
 `docs/1-domain-definition.md`(엔티티·규칙), `docs/2-PRD.md`(§5 우선순위·§8 3일 일정), `docs/5-project-principle.md`(디렉토리 구조·레이어), `docs/7-wireframe.md`(화면), `docs/8-erd.md`·`docs/8-schema.sql`(스키마)을 전제로 작성.
 
@@ -356,10 +363,10 @@ flowchart LR
 
 **완료 조건**
 
-- [ ] 회원가입 후 로그인 화면으로 이동함
-- [ ] 로그인 성공 시 User는 프로모션 목록, Admin은 프로모션 관리 화면으로 이동함
-- [ ] 새로고침 후에도 로그인 상태가 유지됨
-- [ ] 로그인 실패 시 원인을 알 수 있는 오류 메시지가 표시됨
+- [x] 회원가입 후 로그인 화면으로 이동함 — 가입 성공(201) 시 `/login`으로 navigate
+- [x] 로그인 성공 시 User는 프로모션 목록, Admin은 프로모션 관리 화면으로 이동함 — `user.role`에 따라 `/`(USER) / `/admin/promotions`(ADMIN) 분기
+- [x] 새로고침 후에도 로그인 상태가 유지됨 — zustand persist(localStorage), 모듈 재로드 시나리오로 재수화 검증
+- [x] 로그인 실패 시 원인을 알 수 있는 오류 메시지가 표시됨 — 서버 `ApiError.message`를 `role="alert"` 영역에 노출(401/400 모두, 회원가입 400/409도 동일)
 
 ---
 
@@ -374,10 +381,10 @@ flowchart LR
 
 **완료 조건**
 
-- [ ] ONGOING 프로모션만 카드로 표시되고, title/type/기간이 노출됨
-- [ ] 카드 클릭 시 상세 화면으로 이동함
-- [ ] 상세에서 기간/혜택/참여조건/참여방식/유의사항이 표시됨
-- [ ] ROULETTE 상세에 잔여 시도 횟수가 표시됨
+- [x] ONGOING 프로모션만 카드로 표시되고, title/type/기간이 노출됨 — 서버(B3)가 이미 ONGOING만 반환, 프론트는 재필터링 없이 그대로 렌더
+- [x] 카드 클릭 시 상세 화면으로 이동함 — 카드 전체를 `Link`로 감싸 `/promotions/:id`로 이동
+- [x] 상세에서 기간/혜택/참여조건/참여방식/유의사항이 표시됨 — `description` 단일 필드에 통합 표시(도메인 정의서 §3과 일치)
+- [x] ROULETTE 상세에 잔여 시도 횟수가 표시됨 — `maxParticipationCount - (myAttemptCount ?? 0)`로 계산, 비로그인 시 최대치로 표시. 응모/룰렛 버튼은 표시만 하고 동작(API 연동)은 F4 범위로 남김
 
 ---
 
@@ -392,11 +399,11 @@ flowchart LR
 
 **완료 조건**
 
-- [ ] DIRECT 응모 성공 시 응모 완료(PENDING)가 표시됨
-- [ ] 중복 응모 시도 시 거부 사유가 화면에 표시됨
-- [ ] 룰렛 실행 후 WIN/LOSE 결과와 회차, 잔여 횟수가 표시됨
-- [ ] 잔여 횟수 소진 시 실행 버튼이 비활성화되거나 노출되지 않음
-- [ ] 참여 요청 중 중복 클릭으로 2건이 생성되지 않음
+- [x] DIRECT 응모 성공 시 응모 완료(PENDING)가 표시됨 — 응모 버튼을 "응모 완료 (PENDING)" 텍스트로 교체
+- [x] 중복 응모 시도 시 거부 사유가 화면에 표시됨 — 서버 409 `ApiError.message`를 `role="alert"`로 노출
+- [x] 룰렛 실행 후 WIN/LOSE 결과와 회차, 잔여 횟수가 표시됨 — mutation 응답(`RouletteResult`)을 그대로 결과 카드에 표시, 재조회 없이 단일 응답으로 처리
+- [x] 잔여 횟수 소진 시 실행 버튼이 비활성화되거나 노출되지 않음 — `remaining>0` 조건부 렌더로 버튼 자체를 DOM에서 제거(초기 로드 시점/실행 후 소진 시점 모두 동일 조건식으로 처리)
+- [x] 참여 요청 중 중복 클릭으로 2건이 생성되지 않음 — `mutation.isPending`으로 버튼 `disabled` 처리, fetch 지연 mock으로 재클릭이 무시됨을 검증
 
 ---
 
@@ -411,11 +418,11 @@ flowchart LR
 
 **완료 조건**
 
-- [ ] 프로모션명, 참여방식, status, 참여일이 표시됨
-- [ ] ROULETTE 항목에 회차별 WIN/LOSE가 표시됨
-- [ ] 취소 시 status가 CANCELLED로 갱신되어 화면에 반영됨
-- [ ] 재신청 시 status가 REAPPLIED로 갱신되고, 기존 룰렛 결과는 유지됨
-- [ ] ENDED 프로모션의 내역도 조회됨
+- [x] 프로모션명, 참여방식, status, 참여일이 표시됨 — 표(`myp-table`) 형태, 좁은 화면은 컨테이너 가로 스크롤로 대응(마크업 이중화 없이 반응형 처리)
+- [x] ROULETTE 항목에 회차별 WIN/LOSE가 표시됨 — `attempts` 배열을 `N회차: WIN/LOSE` 목록으로 렌더
+- [x] 취소 시 status가 CANCELLED로 갱신되어 화면에 반영됨 — `cancelMutation` 성공 시 `invalidateQueries(['myParticipations'])`로 재조회
+- [x] 재신청 시 status가 REAPPLIED로 갱신되고, 기존 룰렛 결과는 유지됨 — 서버가 attempts를 그대로 유지해 응답, 프론트는 재조회 결과를 그대로 렌더(별도 보존 로직 불필요)
+- [x] ENDED 프로모션의 내역도 조회됨 — 프론트에 상태/타입 기반 필터링 코드 없음, 서버 응답을 그대로 전부 렌더
 
 ---
 
@@ -429,9 +436,9 @@ flowchart LR
 
 **완료 조건**
 
-- [ ] 내 정보가 조회되고 수정 후 저장이 반영됨
-- [ ] 비밀번호 변경이 성공하고, 새 비밀번호로 재로그인됨
-- [ ] User에게만 "내 참여내역 보기"가 노출됨
+- [x] 내 정보가 조회되고 수정 후 저장이 반영됨 — `GET /me` 조회 후 폼 초기화, `PUT /me` 응답으로 캐시(`setQueryData`)와 폼을 재조회 없이 즉시 갱신
+- [x] 비밀번호 변경이 성공하고, 새 비밀번호로 재로그인됨 — 성공 시 `logout()` 후 `/login` 이동, 로그인 화면에서 새 비밀번호로 실제 로그인 성공까지 통합 테스트로 검증
+- [x] User에게만 "내 참여내역 보기"가 노출됨 — `role === 'USER'` 조건부 렌더, Admin은 링크 자체가 DOM에 없음
 
 ---
 
@@ -447,10 +454,10 @@ flowchart LR
 
 **완료 조건**
 
-- [ ] 등록 폼에서 type이 ROULETTE일 때만 maxParticipationCount 입력이 노출됨
-- [ ] 등록/수정이 목록에 즉시 반영됨
-- [ ] 조기 종료는 ONGOING 프로모션에만 노출되고, 실행 시 상태가 ENDED로 바뀜
-- [ ] 참여 현황에서 참여자 수와 참여자 목록이 표시되고, ROULETTE는 당첨 현황이 함께 표시됨
+- [x] 등록 폼에서 type이 ROULETTE일 때만 maxParticipationCount 입력이 노출됨 — 등록 모드는 라디오 실시간 반응, 수정 모드는 조회된 기존 type으로 고정(type 자체는 PromotionUpdateRequest에 없어 수정 불가, 라디오 disabled)
+- [x] 등록/수정이 목록에 즉시 반영됨 — 저장 성공 시 `invalidateQueries(['adminPromotions'])` 후 목록으로 이동(폼과 목록이 별도 마운트라 캐시 invalidate가 유일한 반영 수단)
+- [x] 조기 종료는 ONGOING 프로모션에만 노출되고, 실행 시 상태가 ENDED로 바뀜 — `status==='ONGOING'` 조건부 버튼, `window.confirm` 확인 후 PATCH, 성공 시 재조회로 화면 반영
+- [x] 참여 현황에서 참여자 수와 참여자 목록이 표시되고, ROULETTE는 당첨 현황이 함께 표시됨 — `winCount`/`loseCount` 필드 존재 여부로 ROULETTE 여부 판단(별도 타입 조회 불필요), 프로모션명 타이틀은 완료조건에 없어 API 추가 호출 없이 생략
 
 ---
 
@@ -464,9 +471,9 @@ flowchart LR
 
 **완료 조건**
 
-- [ ] User 화면이 모바일 폭에서 가로 스크롤 없이 표시됨
-- [ ] Admin 표 화면이 좁은 폭에서 카드 형태로 전환되거나 컨테이너 내부에서만 가로 스크롤됨
-- [ ] 모든 화면이 모바일/데스크탑 두 폭에서 레이아웃 깨짐 없이 표시됨
+- [x] User 화면이 모바일 폭에서 가로 스크롤 없이 표시됨 — 전역 `box-sizing:border-box`+`body margin:0` 리셋 누락을 발견해 추가(리셋이 없으면 `width:90%`+`padding` 조합인 `.auth-form` 등이 좁은 화면에서 뷰포트를 넘어설 위험이 있었음)
+- [x] Admin 표 화면이 좁은 폭에서 카드 형태로 전환되거나 컨테이너 내부에서만 가로 스크롤됨 — `MyParticipations`/`AdminPromotionList`/`AdminParticipationStatus` 3개 표 화면 모두 `.myp-table-wrap`(overflow-x:auto) + `.myp-table`(min-width:640px) 패턴으로 이미 컨테이너 내부 스크롤만 발생(F5/F7에서 확립된 반응형 원칙, 마크업 이중화 없음)
+- [x] 모든 화면이 모바일/데스크탑 두 폭에서 레이아웃 깨짐 없이 표시됨 — `.promotion-header`/`.admin-summary`/`.admin-list-header`에 `flex-wrap` 보강(좁은 화면에서 제목+버튼/요약 텍스트가 겹치지 않도록), 나머지 화면은 F2~F7에서 이미 768px/480px 브레이크포인트로 반응형 처리됨을 코드 검토로 재확인. Vitest 77건 전부 통과(회귀 없음), 빌드 성공
 
 ---
 
