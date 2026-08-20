@@ -26,5 +26,6 @@
 | `docs/8-erd.md` | ERD (mermaid) |
 | `docs/8-schema.sql` | PostgreSQL DDL |
 | `docs/9-plan.md` | 실행계획 — DB/백엔드/프론트엔드 Task 분해, 의존관계도, 완료조건 체크리스트 |
+| `docs/10-style.md` | 스타일 가이드 — 컬러/타이포그래피/레이아웃/컴포넌트 규칙 |
 | `docs/swagger.json` | REST API 스펙 (OpenAPI 3.0.3) |
 | `docs/assets/` | 문서에서 참조하는 이미지(SVG 등) |
