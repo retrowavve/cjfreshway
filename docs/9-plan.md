@@ -9,6 +9,14 @@
 | v1.2 | 2026-08-13 | swagger.json과의 정합성 반영: B8 완료조건에 result 필드 추가, B3 필드명 주석(myAttemptCount), B4에 PRD §8 일정 표기 차이 설명 추가 |
 | v1.3 | 2026-08-13 | D1 수행 완료: postgresql-mcp로 5개 테이블·UNIQUE 제약·append-only 트리거 검증, Admin seed 계정 생성. D1 완료 조건 4개 모두 체크    |
 | v1.4 | 2026-08-13 | B1 수행 완료: Express 앱/pool/errorHandler/server 구현, node:test 테스트 6건 전부 통과(커버리지 91.11%), B1 완료 조건 4개 모두 체크 |
+| v1.5 | 2026-08-20 | B2 수행 완료: 인증 API(회원가입/로그인/토큰재발급) 및 authMiddleware 구현, node:test 테스트 19건 전부 통과(커버리지 96.84%), B2 완료 조건 6개 모두 체크 |
+| v1.6 | 2026-08-20 | B3 수행 완료: 프로모션 조회 API(목록/상세, status 동적 산정, myAttemptCount) 구현, node:test 테스트 31건 전부 통과(전체 커버리지 97.33%), B3 완료 조건 3개 모두 체크 |
+| v1.7 | 2026-08-20 | B4 수행 완료: Admin 프로모션 관리 API(등록/수정/조기종료/전체목록) 및 adminOnlyMiddleware(403) 구현, node:test 테스트 52건 전부 통과(전체 커버리지 95.17%), B4 완료 조건 4개 모두 체크 |
+| v1.8 | 2026-08-20 | B5 수행 완료: 프로모션 참여 API(DIRECT 응모/ROULETTE 시도, 트랜잭션·동시성 방어) 구현, node:test 테스트 69건 전부 통과(동시성 테스트 2건 포함, 전체 커버리지 96.19%), B5 완료 조건 7개 모두 체크 |
+| v1.9 | 2026-08-20 | B6 수행 완료: 참여 취소/재신청 API(status 조건부 전환, 본인 소유 검증) 구현, node:test 테스트 83건 전부 통과(전체 커버리지 95.99%), B6 완료 조건 4개 모두 체크 |
+| v1.10 | 2026-08-20 | B7 수행 완료: 내 참여내역 API(GET /me/participations, ROULETTE 회차별 attempts 배치 조회) 구현, node:test 테스트 89건 전부 통과(전체 커버리지 95.93%), B7 완료 조건 3개 모두 체크 |
+| v1.11 | 2026-08-20 | B8 수행 완료: 관리자 참여 현황 API(GET /admin/promotions/:id/participations, DISTINCT ON 최신 attempt 집계) 구현, node:test 테스트 94건 전부 통과(전체 커버리지 96.17%), B8 완료 조건 3개 모두 체크 |
+| v1.12 | 2026-08-20 | B9 수행 완료: 마이페이지 API(GET/PUT /me, PUT /me/password) 구현, node:test 테스트 104건 전부 통과(전체 커버리지 95.75%), B9 완료 조건 3개 모두 체크 |
 
 `docs/1-domain-definition.md`(엔티티·규칙), `docs/2-PRD.md`(§5 우선순위·§8 3일 일정), `docs/5-project-principle.md`(디렉토리 구조·레이어), `docs/7-wireframe.md`(화면), `docs/8-erd.md`·`docs/8-schema.sql`(스키마)을 전제로 작성.
 
@@ -156,12 +164,12 @@ flowchart LR
 
 **완료 조건**
 
-- [ ] 회원가입 시 비밀번호가 bcrypt 해시로 저장됨 (평문 저장/로깅 없음)
-- [ ] 중복 `loginId` 가입 시도가 거부됨
-- [ ] 로그인 성공 시 access token(단기)과 refresh token(장기)이 함께 발급됨
-- [ ] 만료/위조된 access token으로 보호된 API 호출 시 401 응답
-- [ ] refresh token으로 새 access token을 재발급받을 수 있음
-- [ ] authMiddleware가 User/Admin 역할을 구분해 주입함
+- [x] 회원가입 시 비밀번호가 bcrypt 해시로 저장됨 (평문 저장/로깅 없음)
+- [x] 중복 `loginId` 가입 시도가 거부됨
+- [x] 로그인 성공 시 access token(단기)과 refresh token(장기)이 함께 발급됨
+- [x] 만료/위조된 access token으로 보호된 API 호출 시 401 응답
+- [x] refresh token으로 새 access token을 재발급받을 수 있음
+- [x] authMiddleware가 User/Admin 역할을 구분해 주입함
 
 ---
 
@@ -177,9 +185,9 @@ flowchart LR
 
 **완료 조건**
 
-- [ ] 목록 API가 ONGOING 상태 프로모션만 반환함
-- [ ] 상세 API가 title, type, description, startAt, endAt, status, maxParticipationCount를 반환함
-- [ ] ROULETTE 상세 조회 시 로그인 사용자의 현재 `attemptCount`가 함께 반환됨 (잔여 횟수 표시용, API 응답 필드명은 `swagger.json` 기준 `myAttemptCount`)
+- [x] 목록 API가 ONGOING 상태 프로모션만 반환함
+- [x] 상세 API가 title, type, description, startAt, endAt, status, maxParticipationCount를 반환함
+- [x] ROULETTE 상세 조회 시 로그인 사용자의 현재 `attemptCount`가 함께 반환됨 (잔여 횟수 표시용, API 응답 필드명은 `swagger.json` 기준 `myAttemptCount`)
 
 ---
 
@@ -198,10 +206,10 @@ flowchart LR
 
 **완료 조건**
 
-- [ ] Admin 토큰 없이 호출 시 403으로 거부됨 (규칙8)
-- [ ] 등록 시 startAt/endAt 기준으로 status가 UPCOMING 또는 ONGOING으로 자동 산정됨
-- [ ] ROULETTE 등록 시 `maxParticipationCount`가 1 이상으로 저장되고, DIRECT는 1로 고정됨
-- [ ] 조기 종료 후 해당 프로모션의 status가 ENDED이고, 기존 Participation/ParticipationAttempt는 변경되지 않음 (규칙9)
+- [x] Admin 토큰 없이 호출 시 403으로 거부됨 (규칙8) — 토큰 자체가 없으면 401(UNAUTHORIZED), 로그인은 했으나 Admin이 아니면 403(FORBIDDEN)으로 세분화하여 둘 다 검증
+- [x] 등록 시 startAt/endAt 기준으로 status가 UPCOMING 또는 ONGOING으로 자동 산정됨
+- [x] ROULETTE 등록 시 `maxParticipationCount`가 1 이상으로 저장되고, DIRECT는 1로 고정됨
+- [x] 조기 종료 후 해당 프로모션의 status가 ENDED이고, 기존 Participation/ParticipationAttempt는 변경되지 않음 (규칙9)
 
 ---
 
@@ -218,13 +226,13 @@ flowchart LR
 
 **완료 조건**
 
-- [ ] 비로그인 요청이 401로 거부됨 (규칙1)
-- [ ] UPCOMING/ENDED 프로모션 참여 요청이 거부됨 (규칙2)
-- [ ] DIRECT 응모 시 Participation이 status=APPLIED, attemptCount=1, result=PENDING으로 생성됨
-- [ ] DIRECT에서 이미 APPLIED/REAPPLIED 상태인 사용자의 재응모가 거부됨 (규칙5)
-- [ ] ROULETTE 시도마다 attemptCount가 1 증가하고 ParticipationAttempt가 1건 생성되며 WIN/LOSE가 즉시 확정됨 (규칙6)
-- [ ] attemptCount가 maxParticipationCount에 도달하면 추가 시도가 거부됨 (규칙6)
-- [ ] 동일 사용자의 동시 요청에서도 (user, promotion) 조합 Participation이 2건 생성되지 않음 (규칙3, UNIQUE 제약으로 방어)
+- [x] 비로그인 요청이 401로 거부됨 (규칙1)
+- [x] UPCOMING/ENDED 프로모션 참여 요청이 거부됨 (규칙2)
+- [x] DIRECT 응모 시 Participation이 status=APPLIED, attemptCount=1, result=PENDING으로 생성됨
+- [x] DIRECT에서 이미 APPLIED/REAPPLIED 상태인 사용자의 재응모가 거부됨 (규칙5)
+- [x] ROULETTE 시도마다 attemptCount가 1 증가하고 ParticipationAttempt가 1건 생성되며 WIN/LOSE가 즉시 확정됨 (규칙6)
+- [x] attemptCount가 maxParticipationCount에 도달하면 추가 시도가 거부됨 (규칙6)
+- [x] 동일 사용자의 동시 요청에서도 (user, promotion) 조합 Participation이 2건 생성되지 않음 (규칙3, UNIQUE 제약으로 방어) — DIRECT는 UNIQUE 제약 위반(23505)을 409로 변환, ROULETTE는 `INSERT ... ON CONFLICT DO NOTHING` + `SELECT ... FOR UPDATE` row-lock으로 방어, 동시 요청 테스트로 실증 검증
 
 ---
 
@@ -239,10 +247,10 @@ flowchart LR
 
 **완료 조건**
 
-- [ ] 취소/재신청 시 새 레코드가 생성되지 않고 기존 레코드의 status만 전환됨 (규칙3)
-- [ ] 재신청은 프로모션이 ONGOING일 때만 허용됨 (규칙2, `4-user-scenario.md` §4)
-- [ ] 재신청 후에도 기존 ParticipationAttempt 결과가 그대로 유지됨 (규칙4)
-- [ ] 본인 소유가 아닌 Participation에 대한 요청이 거부됨
+- [x] 취소/재신청 시 새 레코드가 생성되지 않고 기존 레코드의 status만 전환됨 (규칙3)
+- [x] 재신청은 프로모션이 ONGOING일 때만 허용됨 (규칙2, `4-user-scenario.md` §4) — 취소는 프로모션 상태와 무관하게 항상 허용
+- [x] 재신청 후에도 기존 ParticipationAttempt 결과가 그대로 유지됨 (규칙4) — 서비스 로직이 participation_attempts 테이블을 전혀 접근하지 않아 자연히 보존
+- [x] 본인 소유가 아닌 Participation에 대한 요청이 거부됨
 
 ---
 
@@ -257,9 +265,9 @@ flowchart LR
 
 **완료 조건**
 
-- [ ] 프로모션명, 참여방식, 참여일시, status가 반환됨
-- [ ] ROULETTE 항목에 회차별(attemptNo) WIN/LOSE 결과가 포함됨
-- [ ] ENDED 프로모션의 참여내역도 계속 조회됨 (규칙7)
+- [x] 프로모션명, 참여방식, 참여일시, status가 반환됨
+- [x] ROULETTE 항목에 회차별(attemptNo) WIN/LOSE 결과가 포함됨
+- [x] ENDED 프로모션의 참여내역도 계속 조회됨 (규칙7) — 조회 쿼리에 프로모션 상태 조건이 없어 자동 충족
 
 ---
 
@@ -273,9 +281,9 @@ flowchart LR
 
 **완료 조건**
 
-- [ ] 총 참여자 수와 참여자별(사업체명/담당자/상태/결과/참여일) 목록이 반환됨 (`7-wireframe.md` §11)
-- [ ] ROULETTE 프로모션은 WIN/LOSE 집계가 함께 반환됨
-- [ ] Admin 토큰 없이 호출 시 거부됨
+- [x] 총 참여자 수와 참여자별(사업체명/담당자/상태/결과/참여일) 목록이 반환됨 (`7-wireframe.md` §11) — CANCELLED 포함 전체 이력, 상태 필터 없음
+- [x] ROULETTE 프로모션은 WIN/LOSE 집계가 함께 반환됨 — 참여자별 최신 ParticipationAttempt 결과(DISTINCT ON) 기준 집계, DIRECT는 winCount/loseCount 필드 자체를 생략
+- [x] Admin 토큰 없이 호출 시 거부됨
 
 ---
 
@@ -290,9 +298,9 @@ flowchart LR
 
 **완료 조건**
 
-- [ ] User/Admin 모두 자신의 정보를 조회·수정할 수 있음
-- [ ] 현재 비밀번호가 틀리면 변경이 거부됨
-- [ ] 변경된 비밀번호가 bcrypt 해시로 저장되고, 새 비밀번호로 로그인됨
+- [x] User/Admin 모두 자신의 정보를 조회·수정할 수 있음 — role별 허용 필드만 반영, 그 외 필드는 조용히 무시
+- [x] 현재 비밀번호가 틀리면 변경이 거부됨
+- [x] 변경된 비밀번호가 bcrypt 해시로 저장되고, 새 비밀번호로 로그인됨
 
 ---
 

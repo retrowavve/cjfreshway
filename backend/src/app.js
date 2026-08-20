@@ -2,11 +2,23 @@ const express = require("express");
 const cors = require("cors");
 const pool = require("./db/pool");
 const errorHandler = require("./middlewares/errorHandler");
+const authRouter = require("./routes/auth");
+const promotionsRouter = require("./routes/promotions");
+const adminPromotionsRouter = require("./routes/adminPromotions");
+const participationsRouter = require("./routes/participations");
+const meRouter = require("./routes/me");
 
 const app = express();
 
-app.use(cors());
+const corsOptions = process.env.FRONTEND_ORIGIN ? { origin: process.env.FRONTEND_ORIGIN } : undefined;
+app.use(cors(corsOptions));
 app.use(express.json());
+
+app.use("/auth", authRouter);
+app.use("/promotions", promotionsRouter);
+app.use("/admin/promotions", adminPromotionsRouter);
+app.use("/participations", participationsRouter);
+app.use("/me", meRouter);
 
 app.get("/health", async (req, res, next) => {
   try {
