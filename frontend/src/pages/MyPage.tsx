@@ -7,10 +7,16 @@ import type { Admin, MeUpdateRequest, PasswordChangeRequest, User } from '../typ
 
 export default function MyPage() {
   const role = useAuthStore((s) => s.user?.role);
+  const navigate = useNavigate();
   const { data, isLoading, isError } = useQuery({
     queryKey: ['me'],
     queryFn: () => httpClient.get<User | Admin>('/me'),
   });
+
+  function handleLogout() {
+    useAuthStore.getState().logout();
+    navigate('/login');
+  }
 
   return (
     <div className="promotion-page mypage-page">
@@ -28,6 +34,7 @@ export default function MyPage() {
       {role === 'USER' && (
         <Link to="/me/participations" className="btn-primary mypage-link">내 참여내역 보기</Link>
       )}
+      <button type="button" className="btn-secondary mypage-link" onClick={handleLogout}>로그아웃</button>
     </div>
   );
 }
