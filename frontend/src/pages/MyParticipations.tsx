@@ -7,6 +7,9 @@ function formatDate(iso: string): string {
   const d = new Date(iso);
   return `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`;
 }
+function typeBadgeClass(type: Participation['promotionType']): string {
+  return type === 'ROULETTE' ? 'promotion-badge promotion-badge-roulette' : 'promotion-badge';
+}
 
 export default function MyParticipations() {
   const queryClient = useQueryClient();
@@ -62,7 +65,7 @@ export default function MyParticipations() {
                 return (
                   <tr key={p.id}>
                     <td>{p.promotionTitle}</td>
-                    <td><span className="promotion-badge">{p.promotionType}</span></td>
+                    <td><span className={typeBadgeClass(p.promotionType)}>{p.promotionType}</span></td>
                     <td>{p.status}</td>
                     <td>
                       {p.promotionType === 'ROULETTE' ? (

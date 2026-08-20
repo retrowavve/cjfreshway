@@ -20,6 +20,9 @@ export default function MyPage() {
 
   return (
     <div className="promotion-page mypage-page">
+      <Link to={role === 'ADMIN' ? '/admin/promotions' : '/'} className="promotion-back">
+        ← {role === 'ADMIN' ? '프로모션 관리' : '프로모션 목록'}
+      </Link>
       <h1 className="promotion-section-title">마이페이지</h1>
       <div className="mypage-layout">
         <section>

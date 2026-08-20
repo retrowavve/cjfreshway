@@ -10,6 +10,19 @@ function formatDate(iso: string): string {
 function formatPeriod(startAt: string, endAt: string): string {
   return `${formatDate(startAt)}~${formatDate(endAt)}`;
 }
+function typeBadgeClass(type: Promotion['type']): string {
+  return type === 'ROULETTE' ? 'promotion-badge promotion-badge-roulette' : 'promotion-badge';
+}
+function statusLabel(status: Promotion['status']): string {
+  if (status === 'ONGOING') return '진행중';
+  if (status === 'UPCOMING') return '진행예정';
+  return '종료';
+}
+function statusBadgeClass(status: Promotion['status']): string {
+  if (status === 'ONGOING') return 'status-badge status-badge-ongoing';
+  if (status === 'UPCOMING') return 'status-badge status-badge-upcoming';
+  return 'status-badge status-badge-ended';
+}
 
 export default function AdminPromotionList() {
   const queryClient = useQueryClient();
@@ -27,7 +40,10 @@ export default function AdminPromotionList() {
     <div className="promotion-page">
       <div className="admin-list-header">
         <h1 className="promotion-section-title">프로모션 관리</h1>
-        <Link to="/admin/promotions/new" className="btn-primary">+ 신규 등록</Link>
+        <div className="admin-list-header-actions">
+          <Link to="/me" className="btn-secondary">마이페이지</Link>
+          <Link to="/admin/promotions/new" className="btn-primary">+ 신규 등록</Link>
+        </div>
       </div>
       {isLoading && <p>불러오는 중...</p>}
       {isError && <p role="alert">프로모션 목록을 불러오지 못했습니다.</p>}
@@ -48,9 +64,9 @@ export default function AdminPromotionList() {
                 return (
                   <tr key={p.id}>
                     <td>{p.title}</td>
-                    <td><span className="promotion-badge">{p.type}</span></td>
+                    <td><span className={typeBadgeClass(p.type)}>{p.type}</span></td>
                     <td>{formatPeriod(p.startAt, p.endAt)}</td>
-                    <td>{p.status}</td>
+                    <td><span className={statusBadgeClass(p.status)}>{statusLabel(p.status)}</span></td>
                     <td className="myp-actions">
                       {p.status === 'ONGOING' && (
                         <button

@@ -11,6 +11,19 @@ function formatDate(iso: string): string {
 function formatPeriod(startAt: string, endAt: string): string {
   return `${formatDate(startAt)}~${formatDate(endAt)}`;
 }
+function typeBadgeClass(type: Promotion['type']): string {
+  return type === 'ROULETTE' ? 'promotion-badge promotion-badge-roulette' : 'promotion-badge';
+}
+function statusLabel(status: Promotion['status']): string {
+  if (status === 'ONGOING') return '진행중';
+  if (status === 'UPCOMING') return '진행예정';
+  return '종료';
+}
+function statusBadgeClass(status: Promotion['status']): string {
+  if (status === 'ONGOING') return 'status-badge status-badge-ongoing';
+  if (status === 'UPCOMING') return 'status-badge status-badge-upcoming';
+  return 'status-badge status-badge-ended';
+}
 
 export default function PromotionDetail() {
   const { id } = useParams<{ id: string }>();
@@ -50,10 +63,11 @@ export default function PromotionDetail() {
       {promotion && (
         <div className="promotion-detail-layout">
           <div className="promotion-detail-body">
-            <span className="promotion-badge">{promotion.type}</span>
+            <span className={typeBadgeClass(promotion.type)}>{promotion.type}</span>
             <h2 className="promotion-title">{promotion.title}</h2>
             <p className="promotion-period">기간: {formatPeriod(promotion.startAt, promotion.endAt)}</p>
             <p className="promotion-description">{promotion.description}</p>
+            <span className={statusBadgeClass(promotion.status)}>{statusLabel(promotion.status)}</span>
           </div>
           <div className="promotion-detail-action">
             {promotion.type === 'DIRECT' && (
@@ -97,7 +111,8 @@ export default function PromotionDetail() {
                     disabled={rouletteMutation.isPending}
                     onClick={() => rouletteMutation.mutate()}
                   >
-                    {rouletteResult ? '다시 돌리기' : '룰렛 실행하기'}
+                    {rouletteMutation.isPending && <span className="roulette-spinner" role="status" aria-label="룰렛 진행 중" />}
+                    {rouletteMutation.isPending ? '룰렛 진행 중...' : rouletteResult ? '다시 돌리기' : '룰렛 실행하기'}
                   </button>
                 )}
                 {rouletteMutation.isError && (
