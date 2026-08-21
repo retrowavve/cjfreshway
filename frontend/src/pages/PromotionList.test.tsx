@@ -3,6 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import PromotionList from './PromotionList';
+import { useAuthStore } from '../stores/authStore';
 
 function jsonResponse(body: unknown, status = 200) {
   return {
@@ -12,7 +13,19 @@ function jsonResponse(body: unknown, status = 200) {
   } as Response;
 }
 
+function base64url(json: unknown): string {
+  const base64 = btoa(JSON.stringify(json));
+  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function makeToken(payload: Record<string, unknown>): string {
+  return `header.${base64url(payload)}.signature`;
+}
+
 function renderList() {
+  useAuthStore.getState().login({
+    accessToken: makeToken({ sub: 'u1', role: 'USER', loginId: 'gdhong' }),
+    refreshToken: 'r1',
+  });
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <QueryClientProvider client={queryClient}>
@@ -40,6 +53,7 @@ const samplePromotion = {
 };
 
 beforeEach(() => {
+  useAuthStore.setState({ accessToken: null, refreshToken: null, user: null });
   vi.stubGlobal('fetch', vi.fn());
 });
 

@@ -107,11 +107,11 @@ describe('MyParticipations', () => {
 
     renderPage();
 
-    expect(await screen.findByText('1회차: LOSE')).toBeInTheDocument();
-    expect(screen.getByText('2회차: WIN')).toBeInTheDocument();
+    expect(await screen.findByText('1회차: 미당첨')).toBeInTheDocument();
+    expect(screen.getByText('2회차: 당첨')).toBeInTheDocument();
   });
 
-  it('DIRECT 항목은 PENDING 결과를 표시한다', async () => {
+  it('DIRECT 항목은 결과 대기중 상태를 표시한다', async () => {
     (fetch as unknown as Mock).mockResolvedValueOnce(
       jsonResponse([
         {
@@ -131,7 +131,7 @@ describe('MyParticipations', () => {
 
     renderPage();
 
-    expect(await screen.findByText('PENDING')).toBeInTheDocument();
+    expect(await screen.findByText('결과 대기중')).toBeInTheDocument();
   });
 
   it('취소 클릭 시 CANCELLED로 갱신된다', async () => {
@@ -154,9 +154,9 @@ describe('MyParticipations', () => {
 
     renderPage();
 
-    fireEvent.click(await screen.findByRole('button', { name: '취소' }));
+    fireEvent.click(await screen.findByRole('button', { name: '응모 취소' }));
 
-    expect(await screen.findByText('CANCELLED')).toBeInTheDocument();
+    expect(await screen.findByText('응모취소')).toBeInTheDocument();
     expect(fetch).toHaveBeenCalledTimes(3);
   });
 
@@ -185,11 +185,11 @@ describe('MyParticipations', () => {
 
     renderPage();
 
-    fireEvent.click(await screen.findByRole('button', { name: '재신청' }));
+    fireEvent.click(await screen.findByRole('button', { name: '재응모' }));
 
-    expect(await screen.findByText('REAPPLIED')).toBeInTheDocument();
-    expect(screen.getByText('1회차: LOSE')).toBeInTheDocument();
-    expect(screen.getByText('2회차: WIN')).toBeInTheDocument();
+    expect(await screen.findByText('재응모완료')).toBeInTheDocument();
+    expect(screen.getByText('1회차: 미당첨')).toBeInTheDocument();
+    expect(screen.getByText('2회차: 당첨')).toBeInTheDocument();
   });
 
   it('상태에 따라 알맞은 액션 버튼만 노출한다', async () => {
@@ -215,8 +215,8 @@ describe('MyParticipations', () => {
     renderPage();
 
     await screen.findAllByText('여름 특가전');
-    expect(screen.getAllByRole('button', { name: '취소' })).toHaveLength(2);
-    expect(screen.getAllByRole('button', { name: '재신청' })).toHaveLength(1);
+    expect(screen.getAllByRole('button', { name: '응모 취소' })).toHaveLength(2);
+    expect(screen.getAllByRole('button', { name: '재응모' })).toHaveLength(1);
   });
 
   it('필터 없이 모든 항목이 렌더된다', async () => {
@@ -265,7 +265,7 @@ describe('MyParticipations', () => {
 
     renderPage();
 
-    fireEvent.click(await screen.findByRole('button', { name: '취소' }));
+    fireEvent.click(await screen.findByRole('button', { name: '응모 취소' }));
 
     const alert = await screen.findByRole('alert');
     expect(alert).toHaveTextContent('취소할 수 없는 상태입니다.');

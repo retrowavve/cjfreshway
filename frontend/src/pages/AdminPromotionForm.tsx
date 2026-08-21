@@ -2,6 +2,7 @@ import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { httpClient, ApiError } from '../api/httpClient';
+import Gnb from '../components/Gnb';
 import type { Promotion, PromotionCreateRequest, PromotionType, PromotionUpdateRequest } from '../types';
 
 function toLocalInputValue(iso: string): string {
@@ -87,7 +88,9 @@ export default function AdminPromotionForm() {
   if (isEdit && isError) return <div className="promotion-page"><p role="alert">프로모션을 불러오지 못했습니다.</p></div>;
 
   return (
-    <div className="promotion-page">
+    <>
+      <Gnb />
+      <div className="promotion-page">
       <form className="auth-form admin-form" onSubmit={handleSubmit}>
         <h1 className="promotion-section-title">{isEdit ? '프로모션 수정' : '프로모션 등록'}</h1>
         <label>프로모션명<input name="title" value={form.title} onChange={handleChange} required /></label>
@@ -111,6 +114,7 @@ export default function AdminPromotionForm() {
           <Link to="/admin/promotions" className="btn-secondary">취소</Link>
         </div>
       </form>
-    </div>
+      </div>
+    </>
   );
 }

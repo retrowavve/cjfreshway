@@ -7,6 +7,8 @@ import PromotionList from './pages/PromotionList';
 import PromotionDetail from './pages/PromotionDetail';
 import MyParticipations from './pages/MyParticipations';
 import MyPage from './pages/MyPage';
+import MyInfoEdit from './pages/MyInfoEdit';
+import MyPasswordChange from './pages/MyPasswordChange';
 import AdminPromotionList from './pages/AdminPromotionList';
 import AdminPromotionForm from './pages/AdminPromotionForm';
 import AdminParticipationStatus from './pages/AdminParticipationStatus';
@@ -57,6 +59,22 @@ export const routes = [
     element: (
       <ProtectedRoute>
         <MyPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/me/info',
+    element: (
+      <ProtectedRoute>
+        <MyInfoEdit />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/me/password',
+    element: (
+      <ProtectedRoute>
+        <MyPasswordChange />
       </ProtectedRoute>
     ),
   },

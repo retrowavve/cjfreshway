@@ -26,6 +26,8 @@ body {
   --color-badge-important: #E8536E;
   --color-badge-important-bg: #FDE8EC;
   --color-white: #FFFFFF;
+  --color-status-ongoing: #2F6FE4;
+  --color-status-upcoming: #B8860B;
   --shadow-sm: 0 1px 2px rgba(20, 20, 20, 0.06);
   --shadow-md: 0 6px 16px rgba(20, 20, 20, 0.08);
 }
@@ -138,29 +140,34 @@ body {
   .auth-form { max-width: none; width: 90%; padding: 24px 16px; }
 }
 
-.promotion-page {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 16px;
-}
-.promotion-header {
+.gnb {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  padding: 12px 16px;
+  background: var(--color-white);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
 }
-.promotion-header h1 {
-  font-size: 20px;
+.gnb-brand {
+  font-size: 18px;
   font-weight: 700;
   color: var(--color-primary);
   letter-spacing: -0.01em;
+  text-decoration: none;
 }
-.promotion-header-actions {
+.gnb-actions {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.promotion-page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 16px;
 }
 .account-badge {
   display: inline-flex;
@@ -194,7 +201,7 @@ body {
 }
 .promotion-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 16px;
 }
 .promotion-card {
@@ -229,22 +236,23 @@ body {
 .status-badge {
   display: inline-block;
   width: fit-content;
-  padding: 2px 10px;
+  padding: 1px 9px;
   border-radius: 999px;
   font-size: 12px;
+  background: var(--color-white);
+  border: 1px solid transparent;
 }
 .status-badge-ongoing {
-  background: var(--color-primary);
+  background: var(--color-status-ongoing);
   color: var(--color-white);
 }
 .status-badge-upcoming {
-  background: var(--color-bg-subtle);
-  color: var(--color-text-secondary);
-  border: 1px solid var(--color-border);
+  color: var(--color-status-upcoming);
+  border-color: var(--color-status-upcoming);
 }
 .status-badge-ended {
-  background: var(--color-border);
   color: var(--color-text-secondary);
+  border-color: var(--color-text-secondary);
 }
 .promotion-title {
   font-size: 15px;
@@ -269,14 +277,25 @@ body {
 .promotion-detail-body {
   display: flex;
   flex-direction: column;
+  gap: 16px;
+}
+.promotion-detail-header {
+  display: flex;
+  flex-direction: column;
   gap: 8px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+.promotion-description-box {
+  background: var(--color-bg-subtle);
+  border-radius: 10px;
+  padding: 16px;
 }
 .promotion-description {
   white-space: pre-wrap;
   font-size: 14px;
   line-height: 1.6;
   color: var(--color-text-primary);
-  margin-top: 8px;
 }
 .promotion-detail-action {
   border-top: 1px solid var(--color-border);
@@ -357,6 +376,12 @@ body {
   padding: 16px;
   background: var(--color-bg-subtle);
   box-shadow: var(--shadow-sm);
+}
+.roulette-congrats {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-primary-dark);
+  text-align: center;
 }
 .roulette-result-label {
   font-size: 13px;
@@ -462,27 +487,31 @@ body {
 .mypage-title-row .promotion-section-title {
   margin-bottom: 0;
 }
-.mypage-layout {
+.mypage-menu {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  margin-bottom: 24px;
+  gap: 10px;
+}
+.mypage-menu-item {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-white);
+  box-shadow: var(--shadow-sm);
+  color: var(--color-text-primary);
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+.mypage-menu-item:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 .mypage-form {
   max-width: none;
-}
-.mypage-link {
-  display: inline-flex;
-  width: 100%;
-  margin-top: 12px;
-}
-@media (min-width: 768px) {
-  .mypage-layout {
-    flex-direction: row;
-  }
-  .mypage-layout > section {
-    flex: 1;
-  }
 }
 .admin-form { max-width: 480px; }
 .admin-form-actions { display: flex; gap: 8px; }

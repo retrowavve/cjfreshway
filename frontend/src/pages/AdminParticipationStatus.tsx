@@ -1,6 +1,7 @@
 import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { httpClient, ApiError } from '../api/httpClient';
+import Gnb from '../components/Gnb';
 import type { AdminParticipationSummary } from '../types';
 
 function formatDate(iso: string): string {
@@ -17,7 +18,9 @@ export default function AdminParticipationStatus() {
   });
 
   return (
-    <div className="promotion-page">
+    <>
+      <Gnb />
+      <div className="promotion-page">
       <Link to="/admin/promotions" className="promotion-back">← 목록</Link>
       <h2 className="promotion-section-title">참여 현황</h2>
       {isLoading && <p>불러오는 중...</p>}
@@ -51,6 +54,7 @@ export default function AdminParticipationStatus() {
           </div>
         </>
       )}
-    </div>
+      </div>
+    </>
   );
 }

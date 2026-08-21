@@ -87,6 +87,6 @@ describe('router / ProtectedRoute', () => {
 
     renderAt('/me');
 
-    expect(await screen.findByText('마이페이지')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: '마이페이지' })).toBeInTheDocument();
   });
 });

@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { httpClient, ApiError } from '../api/httpClient';
-import type { Participation } from '../types';
+import Gnb from '../components/Gnb';
+import type { Participation, ParticipationStatus, ParticipationResult, AttemptResult } from '../types';
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
@@ -9,6 +10,16 @@ function formatDate(iso: string): string {
 }
 function typeBadgeClass(type: Participation['promotionType']): string {
   return type === 'ROULETTE' ? 'promotion-badge promotion-badge-roulette' : 'promotion-badge';
+}
+function statusLabel(status: ParticipationStatus): string {
+  if (status === 'APPLIED') return '응모완료';
+  if (status === 'REAPPLIED') return '재응모완료';
+  return '응모취소';
+}
+function resultLabel(result: ParticipationResult | AttemptResult): string {
+  if (result === 'WIN') return '당첨';
+  if (result === 'LOSE') return '미당첨';
+  return '결과 대기중';
 }
 
 export default function MyParticipations() {
@@ -33,7 +44,9 @@ export default function MyParticipations() {
   const actionError = cancelMutation.error ?? reapplyMutation.error;
 
   return (
-    <div className="promotion-page myp-page">
+    <>
+      <Gnb />
+      <div className="promotion-page myp-page">
       <Link to="/me" className="promotion-back">← 마이페이지</Link>
       <h2 className="promotion-section-title">내 참여내역</h2>
 
@@ -55,7 +68,7 @@ export default function MyParticipations() {
                 <th>상태</th>
                 <th>결과</th>
                 <th>참여일</th>
-                <th>액션</th>
+                <th>응모 관리</th>
               </tr>
             </thead>
             <tbody>
@@ -66,16 +79,16 @@ export default function MyParticipations() {
                   <tr key={p.id}>
                     <td>{p.promotionTitle}</td>
                     <td><span className={typeBadgeClass(p.promotionType)}>{p.promotionType}</span></td>
-                    <td>{p.status}</td>
+                    <td>{statusLabel(p.status)}</td>
                     <td>
                       {p.promotionType === 'ROULETTE' ? (
                         <ul className="myp-attempts">
                           {(p.attempts ?? []).map((a) => (
-                            <li key={a.id}>{a.attemptNo}회차: {a.result}</li>
+                            <li key={a.id}>{a.attemptNo}회차: {resultLabel(a.result)}</li>
                           ))}
                         </ul>
                       ) : (
-                        <span>{p.result}</span>
+                        <span>{resultLabel(p.result)}</span>
                       )}
                     </td>
                     <td>{formatDate(p.participatedAt)}</td>
@@ -87,7 +100,7 @@ export default function MyParticipations() {
                           disabled={isCancelling}
                           onClick={() => cancelMutation.mutate(p.id)}
                         >
-                          취소
+                          응모 취소
                         </button>
                       )}
                       {p.status === 'CANCELLED' && (
@@ -97,7 +110,7 @@ export default function MyParticipations() {
                           disabled={isReapplying}
                           onClick={() => reapplyMutation.mutate(p.id)}
                         >
-                          재신청
+                          재응모
                         </button>
                       )}
                     </td>
@@ -108,6 +121,7 @@ export default function MyParticipations() {
           </table>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }
