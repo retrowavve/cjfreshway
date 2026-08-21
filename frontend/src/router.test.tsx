@@ -75,6 +75,14 @@ describe('router / ProtectedRoute', () => {
     expect(await screen.findByText('프로모션 목록')).toBeInTheDocument();
   });
 
+  it('ADMIN으로 로그인된 상태에서 USER 전용 라우트("/promotions/:id") 접근 시 "/admin/promotions"로 리다이렉트된다', async () => {
+    loginAs('ADMIN');
+
+    renderAt('/promotions/p1');
+
+    expect(await screen.findByText('프로모션 관리')).toBeInTheDocument();
+  });
+
   it('role 미지정 라우트("/me")는 로그인만 되어 있으면 정상 렌더된다', async () => {
     loginAs('USER');
 
