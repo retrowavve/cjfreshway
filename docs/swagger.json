@@ -291,7 +291,7 @@
     "/promotions": {
       "get": {
         "tags": ["Promotions"],
-        "summary": "진행중(ONGOING) 프로모션 목록 조회",
+        "summary": "진행중/진행예정(ONGOING/UPCOMING) 프로모션 목록 조회",
         "responses": {
           "200": {
             "description": "목록",

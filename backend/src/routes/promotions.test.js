@@ -159,7 +159,7 @@ after(async () => {
 });
 
 describe('GET /promotions', () => {
-  test('ONGOING 프로모션만 포함되고 UPCOMING/ENDED는 제외된다', async () => {
+  test('ONGOING/UPCOMING 프로모션은 포함되고 ENDED는 제외된다', async () => {
     const res = await fetch(`${baseUrl}/promotions`);
     const body = await res.json();
 
@@ -168,11 +168,11 @@ describe('GET /promotions', () => {
 
     const ids = body.map((p) => p.id);
     assert.ok(ids.includes(promotionIds.ongoing));
-    assert.ok(!ids.includes(promotionIds.upcoming));
+    assert.ok(ids.includes(promotionIds.upcoming));
     assert.ok(!ids.includes(promotionIds.endedByTime));
     assert.ok(!ids.includes(promotionIds.endedEarly));
 
-    body.forEach((p) => assert.equal(p.status, 'ONGOING'));
+    body.forEach((p) => assert.ok(p.status === 'ONGOING' || p.status === 'UPCOMING'));
   });
 
   test('DB status가 UPCOMING이어도 start_at이 지났으면 동적으로 ONGOING 판정되어 목록에 포함된다', async () => {

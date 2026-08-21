@@ -15,8 +15,8 @@ function toPromotionResponse(row) {
   };
 }
 
-async function listOngoing() {
-  const rows = await promotionsRepo.findOngoing();
+async function listOngoingAndUpcoming() {
+  const rows = await promotionsRepo.findOngoingAndUpcoming();
   return rows.map(toPromotionResponse);
 }
 
@@ -184,4 +184,4 @@ async function getAdminParticipationSummary(promotionId) {
   return summary;
 }
 
-module.exports = { listOngoing, getById, listAll, create, update, endEarly, getAdminParticipationSummary };
+module.exports = { listOngoingAndUpcoming, getById, listAll, create, update, endEarly, getAdminParticipationSummary };

@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.get("/", async (req, res, next) => {
   try {
-    const promotions = await promotionService.listOngoing();
+    const promotions = await promotionService.listOngoingAndUpcoming();
     res.status(200).json(promotions);
   } catch (err) {
     next(err);

@@ -52,6 +52,18 @@ const samplePromotion = {
   createdBy: 'a1',
 };
 
+const upcomingPromotion = {
+  id: 'p2',
+  title: '가을 신상 행사',
+  type: 'ROULETTE',
+  description: '설명',
+  startAt: '2026-09-01T12:00:00.000Z',
+  endAt: '2026-09-30T12:00:00.000Z',
+  status: 'UPCOMING',
+  maxParticipationCount: 3,
+  createdBy: 'a1',
+};
+
 beforeEach(() => {
   useAuthStore.setState({ accessToken: null, refreshToken: null, user: null });
   vi.stubGlobal('fetch', vi.fn());
@@ -95,5 +107,37 @@ describe('PromotionList', () => {
     renderList();
 
     expect(await screen.findByRole('alert')).toBeInTheDocument();
+  });
+
+  it('기본은 진행중 chip이 선택되어 ONGOING 프로모션만 보인다', async () => {
+    (fetch as Mock).mockResolvedValueOnce(jsonResponse([samplePromotion, upcomingPromotion], 200));
+
+    renderList();
+
+    expect(await screen.findByText('여름 특가전')).toBeInTheDocument();
+    expect(screen.queryByText('가을 신상 행사')).not.toBeInTheDocument();
+  });
+
+  it('진행예정 chip 클릭 시 UPCOMING 프로모션만 보인다', async () => {
+    (fetch as Mock).mockResolvedValueOnce(jsonResponse([samplePromotion, upcomingPromotion], 200));
+
+    renderList();
+    await screen.findByText('여름 특가전');
+
+    fireEvent.click(screen.getByRole('button', { name: '진행예정' }));
+
+    expect(screen.getByText('가을 신상 행사')).toBeInTheDocument();
+    expect(screen.queryByText('여름 특가전')).not.toBeInTheDocument();
+  });
+
+  it('선택한 상태에 해당하는 프로모션이 없으면 안내 문구를 보여준다', async () => {
+    (fetch as Mock).mockResolvedValueOnce(jsonResponse([samplePromotion], 200));
+
+    renderList();
+    await screen.findByText('여름 특가전');
+
+    fireEvent.click(screen.getByRole('button', { name: '진행예정' }));
+
+    expect(await screen.findByText('해당 상태의 프로모션이 없습니다.')).toBeInTheDocument();
   });
 });

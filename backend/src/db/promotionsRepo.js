@@ -7,13 +7,13 @@ const STATUS_CASE = `CASE
     ELSE 'ONGOING'
   END`;
 
-async function findOngoing() {
+async function findOngoingAndUpcoming() {
   const result = await pool.query(
     `SELECT id, title, type, description, start_at, end_at, ${STATUS_CASE} AS status,
             max_participation_count, created_by
      FROM promotions
-     WHERE (${STATUS_CASE}) = 'ONGOING'
-     ORDER BY id`
+     WHERE (${STATUS_CASE}) IN ('ONGOING', 'UPCOMING')
+     ORDER BY CASE WHEN (${STATUS_CASE}) = 'ONGOING' THEN 0 ELSE 1 END, start_at`
   );
   return result.rows;
 }
@@ -79,4 +79,4 @@ async function endById(id) {
   return result.rows[0];
 }
 
-module.exports = { findOngoing, findById, findAll, insert, updateById, endById };
+module.exports = { findOngoingAndUpcoming, findById, findAll, insert, updateById, endById };
