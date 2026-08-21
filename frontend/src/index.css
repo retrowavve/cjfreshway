@@ -227,6 +227,7 @@ body {
 }
 .promotion-card-image {
   flex-shrink: 0;
+  width: 128px;
   aspect-ratio: 4 / 3;
   border-radius: 8px;
   background: var(--color-bg-subtle);
@@ -243,6 +244,11 @@ body {
   gap: 8px;
   min-width: 0;
   flex: 1;
+}
+.promotion-card-body .promotion-title {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 .promotion-badge {
   display: inline-block;
@@ -306,7 +312,7 @@ body {
 }
 .promotion-detail-image {
   width: 100%;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 3 / 1;
   border-radius: 10px;
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   display: flex;

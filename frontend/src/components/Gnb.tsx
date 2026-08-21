@@ -14,7 +14,9 @@ export default function Gnb() {
 
   return (
     <header className="gnb">
-      <Link to={user!.role === 'ADMIN' ? '/admin/promotions' : '/'} className="gnb-brand">응모해</Link>
+      <Link to={user!.role === 'ADMIN' ? '/admin/promotions' : '/'} className="gnb-brand">
+        <span aria-hidden="true">🎯</span> 응모해
+      </Link>
       <div className="gnb-actions">
         <span className="account-badge">
           <strong>{user!.loginId}</strong>
