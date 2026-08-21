@@ -68,10 +68,13 @@ export default function PromotionList() {
             <div className="promotion-grid">
               {filtered.map((p) => (
                 <Link key={p.id} to={`/promotions/${p.id}`} className="promotion-card">
-                  <span className={typeBadgeClass(p.type)}>{typeLabel(p.type)}</span>
-                  <h3 className="promotion-title">{p.title}</h3>
-                  <p className="promotion-period">진행 기간: {formatPeriod(p.startAt, p.endAt)}</p>
-                  <span className={statusBadgeClass(p.status)}>{statusLabel(p.status)}</span>
+                  <div className="promotion-card-image" aria-hidden="true">이벤트 응모</div>
+                  <div className="promotion-card-body">
+                    <span className={typeBadgeClass(p.type)}>{typeLabel(p.type)}</span>
+                    <h3 className="promotion-title">{p.title}</h3>
+                    <p className="promotion-period">진행 기간: {formatPeriod(p.startAt, p.endAt)}</p>
+                    <span className={statusBadgeClass(p.status)}>{statusLabel(p.status)}</span>
+                  </div>
                 </Link>
               ))}
             </div>

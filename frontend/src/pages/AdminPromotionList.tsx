@@ -14,6 +14,9 @@ function formatPeriod(startAt: string, endAt: string): string {
 function typeBadgeClass(type: Promotion['type']): string {
   return type === 'ROULETTE' ? 'promotion-badge promotion-badge-roulette' : 'promotion-badge';
 }
+function typeLabel(type: Promotion['type']): string {
+  return type === 'ROULETTE' ? '룰렛 돌리기' : '직접 응모';
+}
 function statusLabel(status: Promotion['status']): string {
   if (status === 'ONGOING') return '진행중';
   if (status === 'UPCOMING') return '진행예정';
@@ -66,7 +69,7 @@ export default function AdminPromotionList() {
                 return (
                   <tr key={p.id}>
                     <td>{p.title}</td>
-                    <td><span className={typeBadgeClass(p.type)}>{p.type}</span></td>
+                    <td><span className={typeBadgeClass(p.type)}>{typeLabel(p.type)}</span></td>
                     <td>{formatPeriod(p.startAt, p.endAt)}</td>
                     <td><span className={statusBadgeClass(p.status)}>{statusLabel(p.status)}</span></td>
                     <td className="myp-actions">

@@ -15,6 +15,9 @@ function formatPeriod(startAt: string, endAt: string): string {
 function typeBadgeClass(type: Promotion['type']): string {
   return type === 'ROULETTE' ? 'promotion-badge promotion-badge-roulette' : 'promotion-badge';
 }
+function typeLabel(type: Promotion['type']): string {
+  return type === 'ROULETTE' ? '룰렛 돌리기' : '직접 응모';
+}
 function statusLabel(status: Promotion['status']): string {
   if (status === 'ONGOING') return '진행중';
   if (status === 'UPCOMING') return '진행예정';
@@ -78,7 +81,7 @@ export default function PromotionDetail() {
             </div>
             <div className="promotion-detail-header">
               <div className="promotion-detail-chips">
-                <span className={typeBadgeClass(promotion.type)}>{promotion.type}</span>
+                <span className={typeBadgeClass(promotion.type)}>{typeLabel(promotion.type)}</span>
                 <span className={statusBadgeClass(promotion.status)}>{statusLabel(promotion.status)}</span>
               </div>
               <h2 className="promotion-title">{promotion.title}</h2>

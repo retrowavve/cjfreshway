@@ -65,8 +65,8 @@ describe('MyParticipations', () => {
 
     expect(await screen.findByText('여름 특가전')).toBeInTheDocument();
     expect(screen.getByText('룰렛이벤트')).toBeInTheDocument();
-    expect(screen.getByText('DIRECT')).toBeInTheDocument();
-    expect(screen.getByText('ROULETTE')).toBeInTheDocument();
+    expect(screen.getByText('직접 응모')).toBeInTheDocument();
+    expect(screen.getByText('룰렛 돌리기')).toBeInTheDocument();
     expect(screen.getByText('08/10')).toBeInTheDocument();
     expect(screen.getByText('08/11')).toBeInTheDocument();
   });

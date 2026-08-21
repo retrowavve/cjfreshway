@@ -11,6 +11,9 @@ function formatDate(iso: string): string {
 function typeBadgeClass(type: Participation['promotionType']): string {
   return type === 'ROULETTE' ? 'promotion-badge promotion-badge-roulette' : 'promotion-badge';
 }
+function typeLabel(type: Participation['promotionType']): string {
+  return type === 'ROULETTE' ? '룰렛 돌리기' : '직접 응모';
+}
 function statusLabel(status: ParticipationStatus): string {
   if (status === 'APPLIED') return '응모완료';
   if (status === 'REAPPLIED') return '재응모완료';
@@ -78,7 +81,7 @@ export default function MyParticipations() {
                 return (
                   <tr key={p.id}>
                     <td>{p.promotionTitle}</td>
-                    <td><span className={typeBadgeClass(p.promotionType)}>{p.promotionType}</span></td>
+                    <td><span className={typeBadgeClass(p.promotionType)}>{typeLabel(p.promotionType)}</span></td>
                     <td>{statusLabel(p.status)}</td>
                     <td>
                       {p.promotionType === 'ROULETTE' ? (

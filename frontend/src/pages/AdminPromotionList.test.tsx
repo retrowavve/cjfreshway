@@ -77,8 +77,8 @@ describe('AdminPromotionList', () => {
     expect(await screen.findByText('예정 이벤트')).toBeInTheDocument();
     expect(screen.getByText('진행 이벤트')).toBeInTheDocument();
     expect(screen.getByText('종료 이벤트')).toBeInTheDocument();
-    expect(screen.getAllByText('DIRECT')).toHaveLength(2);
-    expect(screen.getByText('ROULETTE')).toBeInTheDocument();
+    expect(screen.getAllByText('직접 응모')).toHaveLength(2);
+    expect(screen.getByText('룰렛 돌리기')).toBeInTheDocument();
     expect(screen.getByText('09/01~09/30')).toBeInTheDocument();
     expect(screen.getByText('08/01~08/31')).toBeInTheDocument();
     expect(screen.getByText('07/01~07/31')).toBeInTheDocument();
