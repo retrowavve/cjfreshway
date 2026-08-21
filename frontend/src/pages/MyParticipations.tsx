@@ -96,26 +96,28 @@ export default function MyParticipations() {
                     </td>
                     <td>{formatDate(p.participatedAt)}</td>
                     <td className="myp-actions">
-                      {(p.status === 'APPLIED' || p.status === 'REAPPLIED') && (
-                        <button
-                          type="button"
-                          className="btn-secondary"
-                          disabled={isCancelling}
-                          onClick={() => cancelMutation.mutate(p.id)}
-                        >
-                          응모 취소
-                        </button>
-                      )}
-                      {p.status === 'CANCELLED' && (
-                        <button
-                          type="button"
-                          className="btn-secondary"
-                          disabled={isReapplying}
-                          onClick={() => reapplyMutation.mutate(p.id)}
-                        >
-                          재응모
-                        </button>
-                      )}
+                      <div className="myp-actions-inner">
+                        {(p.status === 'APPLIED' || p.status === 'REAPPLIED') && (
+                          <button
+                            type="button"
+                            className="btn-secondary"
+                            disabled={isCancelling}
+                            onClick={() => cancelMutation.mutate(p.id)}
+                          >
+                            응모 취소
+                          </button>
+                        )}
+                        {p.status === 'CANCELLED' && (
+                          <button
+                            type="button"
+                            className="btn-secondary"
+                            disabled={isReapplying}
+                            onClick={() => reapplyMutation.mutate(p.id)}
+                          >
+                            재응모
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );

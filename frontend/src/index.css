@@ -532,9 +532,11 @@ body {
   font-size: 13px;
 }
 .myp-actions {
-  display: flex;
+  text-align: center;
+}
+.myp-actions-inner {
+  display: inline-flex;
   gap: 6px;
-  justify-content: center;
 }
 .btn-secondary {
   height: 32px;

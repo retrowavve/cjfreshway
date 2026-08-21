@@ -73,20 +73,22 @@ export default function AdminPromotionList() {
                     <td>{formatPeriod(p.startAt, p.endAt)}</td>
                     <td><span className={statusBadgeClass(p.status)}>{statusLabel(p.status)}</span></td>
                     <td className="myp-actions">
-                      {p.status === 'ONGOING' && (
-                        <button
-                          type="button"
-                          className="btn-secondary"
-                          disabled={isEnding}
-                          onClick={() => {
-                            if (window.confirm('조기 종료하시겠습니까?')) endMutation.mutate(p.id);
-                          }}
-                        >
-                          조기종료
-                        </button>
-                      )}
-                      <Link to={`/admin/promotions/${p.id}/edit`} className="btn-secondary">수정</Link>
-                      <Link to={`/admin/promotions/${p.id}/participations`} className="btn-secondary">현황</Link>
+                      <div className="myp-actions-inner">
+                        {p.status === 'ONGOING' && (
+                          <button
+                            type="button"
+                            className="btn-secondary"
+                            disabled={isEnding}
+                            onClick={() => {
+                              if (window.confirm('조기 종료하시겠습니까?')) endMutation.mutate(p.id);
+                            }}
+                          >
+                            조기종료
+                          </button>
+                        )}
+                        <Link to={`/admin/promotions/${p.id}/edit`} className="btn-secondary">수정</Link>
+                        <Link to={`/admin/promotions/${p.id}/participations`} className="btn-secondary">현황</Link>
+                      </div>
                     </td>
                   </tr>
                 );
