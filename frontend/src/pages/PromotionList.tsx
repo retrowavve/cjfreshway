@@ -41,9 +41,23 @@ export default function PromotionList() {
     <>
       <Gnb />
       <div className="promotion-page">
-        <h2 className="promotion-section-title">
-          {filter === 'ONGOING' ? '진행중인 프로모션' : '진행예정 프로모션'}
-        </h2>
+        <h2 className="promotion-section-title">프로모션 목록</h2>
+        <div className="promotion-filter-chips" role="group" aria-label="프로모션 상태 필터">
+          <button
+            type="button"
+            className={`filter-chip filter-chip-ongoing${filter === 'ONGOING' ? ' filter-chip-active' : ''}`}
+            onClick={() => setFilter('ONGOING')}
+          >
+            진행중
+          </button>
+          <button
+            type="button"
+            className={`filter-chip filter-chip-upcoming${filter === 'UPCOMING' ? ' filter-chip-active' : ''}`}
+            onClick={() => setFilter('UPCOMING')}
+          >
+            진행예정
+          </button>
+        </div>
         {isLoading && <p>불러오는 중...</p>}
         {isError && <p role="alert">프로모션을 불러오지 못했습니다.</p>}
         {data && (
@@ -59,22 +73,6 @@ export default function PromotionList() {
               ))}
             </div>
             {filtered.length === 0 && <p className="promotion-empty">해당 상태의 프로모션이 없습니다.</p>}
-            <div className="promotion-filter-chips" role="group" aria-label="프로모션 상태 필터">
-              <button
-                type="button"
-                className={`filter-chip filter-chip-ongoing${filter === 'ONGOING' ? ' filter-chip-active' : ''}`}
-                onClick={() => setFilter('ONGOING')}
-              >
-                진행중
-              </button>
-              <button
-                type="button"
-                className={`filter-chip filter-chip-upcoming${filter === 'UPCOMING' ? ' filter-chip-active' : ''}`}
-                onClick={() => setFilter('UPCOMING')}
-              >
-                진행예정
-              </button>
-            </div>
           </>
         )}
       </div>

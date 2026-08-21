@@ -64,7 +64,7 @@ describe('router / ProtectedRoute', () => {
 
     renderAt('/');
 
-    expect(await screen.findByText('진행중인 프로모션')).toBeInTheDocument();
+    expect(await screen.findByText('프로모션 목록')).toBeInTheDocument();
   });
 
   it('USER로 로그인된 상태에서 "/admin/promotions" 접근 시 "/"로 리다이렉트된다', async () => {
@@ -72,7 +72,7 @@ describe('router / ProtectedRoute', () => {
 
     renderAt('/admin/promotions');
 
-    expect(await screen.findByText('진행중인 프로모션')).toBeInTheDocument();
+    expect(await screen.findByText('프로모션 목록')).toBeInTheDocument();
   });
 
   it('role 미지정 라우트("/me")는 로그인만 되어 있으면 정상 렌더된다', async () => {
