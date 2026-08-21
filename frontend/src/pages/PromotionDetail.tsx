@@ -73,9 +73,14 @@ export default function PromotionDetail() {
       {promotion && (
         <div className="promotion-detail-layout">
           <div className="promotion-detail-body">
+            <div className="promotion-detail-image" aria-hidden="true">
+              {promotion.type === 'ROULETTE' ? '🎯' : '🎁'}
+            </div>
             <div className="promotion-detail-header">
-              <span className={typeBadgeClass(promotion.type)}>{promotion.type}</span>
-              <span className={statusBadgeClass(promotion.status)}>{statusLabel(promotion.status)}</span>
+              <div className="promotion-detail-chips">
+                <span className={typeBadgeClass(promotion.type)}>{promotion.type}</span>
+                <span className={statusBadgeClass(promotion.status)}>{statusLabel(promotion.status)}</span>
+              </div>
               <h2 className="promotion-title">{promotion.title}</h2>
               <p className="promotion-period">기간: {formatPeriod(promotion.startAt, promotion.endAt)}</p>
             </div>
