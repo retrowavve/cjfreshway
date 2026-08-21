@@ -1,0 +1,99 @@
+=== health ===
+{"status":"ok","db":"connected"}
+HTTP:200
+=== 1. signup ===
+{"id":"5544e893-1106-4669-aa80-8855b19f176d","loginId":"prod_e2e_user_1787285271","businessName":"prod e2e ���","name":"prod e2e","phone":"010-0000-0000","createdAt":"2026-08-21T04:07:55.923Z"}
+HTTP:201
+=== 1-1. signup 중복 (엣지케이스) ===
+{"code":"LOGIN_ID_DUPLICATE","message":"이미 사용 중인 아이디입니다."}
+HTTP:409
+=== 2. login (성공) ===
+{"accessToken":"<REDACTED_JWT>","refreshToken":"<REDACTED_JWT>"}
+HTTP:200
+=== 2-1. login 실패(비밀번호 틀림, 엣지케이스) ===
+{"code":"INVALID_CREDENTIALS","message":"아이디 또는 비밀번호가 올바르지 않습니다."}
+HTTP:401
+=== 3. admin login ===
+{"accessToken":"<REDACTED_JWT>","refreshToken":"<REDACTED_JWT>"}
+HTTP:200
+=== 4. admin: DIRECT 프로모션 등록 ===
+{"id":"dc4aedb1-aa49-492c-ae21-fab191645e65","title":"prod e2e DIRECT","type":"DIRECT","description":"desc","startAt":"2026-08-21T03:10:37.000Z","endAt":"2026-08-28T04:10:38.000Z","status":"ONGOING","maxParticipationCount":1,"createdBy":"1e0724a8-b950-485f-8dd6-b8b269d863cb"}
+HTTP:201
+=== 5. admin: ROULETTE 프로모션 등록 ===
+{"id":"55588a7a-3d13-4b13-9d1a-5a9fe3ed9381","title":"prod e2e ROULETTE","type":"ROULETTE","description":"desc","startAt":"2026-08-21T03:10:37.000Z","endAt":"2026-08-28T04:10:38.000Z","status":"ONGOING","maxParticipationCount":2,"createdBy":"1e0724a8-b950-485f-8dd6-b8b269d863cb"}
+HTTP:201
+=== 5-1. USER 토큰으로 프로모션 등록 시도 (권한 없음, 엣지케이스) ===
+{"code":"FORBIDDEN","message":"관리자 권한이 필요합니다."}
+HTTP:403
+=== 6. GET /promotions (ONGOING+UPCOMING) ===
+[{"id":"dc4aedb1-aa49-492c-ae21-fab191645e65","title":"prod e2e DIRECT","type":"DIRECT","description":"desc","startAt":"2026-08-21T03:10:37.000Z","endAt":"2026-08-28T04:10:38.000Z","status":"ONGOING","maxParticipationCount":1,"createdBy":"1e0724a8-b950-485f-8dd6-b8b269d863cb"},{"id":"55588a7a-3d13-4b13-9d1a-5a9fe3ed9381","title":"prod e2e ROULETTE","type":"ROULETTE","description":"desc","startAt":"2026-08-21T03:10:37.000Z","endAt":"2026-08-28T04:10:38.000Z","status":"ONGOING","maxParticipationCount":2,"createdBy":"1e0724a8-b950-485f-8dd6-b8b269d863cb"}]
+HTTP:200
+=== 7. GET /promotions/:id (DIRECT 상세) ===
+{"id":"dc4aedb1-aa49-492c-ae21-fab191645e65","title":"prod e2e DIRECT","type":"DIRECT","description":"desc","startAt":"2026-08-21T03:10:37.000Z","endAt":"2026-08-28T04:10:38.000Z","status":"ONGOING","maxParticipationCount":1,"createdBy":"1e0724a8-b950-485f-8dd6-b8b269d863cb"}
+HTTP:200
+=== 7-1. 존재하지 않는 프로모션 조회 (엣지케이스) ===
+{"code":"PROMOTION_NOT_FOUND","message":"프로모션을 찾을 수 없습니다."}
+HTTP:404
+=== 8. DIRECT 응모 ===
+{"id":"ff93c4ee-7434-4457-bf24-1bf0fa478927","userId":"5544e893-1106-4669-aa80-8855b19f176d","promotionId":"dc4aedb1-aa49-492c-ae21-fab191645e65","promotionTitle":"prod e2e DIRECT","promotionType":"DIRECT","status":"APPLIED","participatedAt":"2026-08-21T04:11:19.049Z","updatedAt":"2026-08-21T04:11:19.049Z","attemptCount":1,"result":"PENDING"}
+HTTP:201
+=== 8-1. DIRECT 중복 응모 (엣지케이스) ===
+{"code":"ALREADY_PARTICIPATED","message":"이미 참여한 프로모션입니다."}
+HTTP:409
+=== 8-2. 비로그인 응모 시도 (엣지케이스) ===
+{"code":"UNAUTHORIZED","message":"인증이 필요합니다."}
+HTTP:401
+=== 9. ROULETTE 1회차 ===
+{"participationId":"81f06e4d-71cd-4c98-b43c-6814f7286211","attemptNo":1,"result":"LOSE","attemptCount":1,"maxParticipationCount":2}
+HTTP:201
+=== 10. ROULETTE 2회차(max=2 소진) ===
+{"participationId":"81f06e4d-71cd-4c98-b43c-6814f7286211","attemptNo":2,"result":"WIN","attemptCount":2,"maxParticipationCount":2}
+HTTP:201
+=== 10-1. ROULETTE 3회차 - 소진 후 시도(엣지케이스) ===
+{"code":"ATTEMPT_LIMIT_EXCEEDED","message":"응모 가능 횟수를 초과했습니다."}
+HTTP:409
+=== 10-2. DIRECT 프로모션에 roulette 호출(엣지케이스) ===
+{"code":"PROMOTION_TYPE_MISMATCH","message":"프로모션 타입이 일치하지 않습니다."}
+HTTP:409
+=== 11. GET /me/participations ===
+[{"id":"81f06e4d-71cd-4c98-b43c-6814f7286211","userId":"5544e893-1106-4669-aa80-8855b19f176d","promotionId":"55588a7a-3d13-4b13-9d1a-5a9fe3ed9381","promotionTitle":"prod e2e ROULETTE","promotionType":"ROULETTE","status":"APPLIED","participatedAt":"2026-08-21T04:11:40.686Z","updatedAt":"2026-08-21T04:11:43.552Z","attemptCount":2,"result":null,"attempts":[{"id":"4362c08b-7d0d-4a45-aa07-082f8417b1a4","attemptNo":1,"result":"LOSE","attemptedAt":"2026-08-21T04:11:40.686Z"},{"id":"8b2f865e-874b-488b-98da-d75a5355029b","attemptNo":2,"result":"WIN","attemptedAt":"2026-08-21T04:11:43.552Z"}]},{"id":"ff93c4ee-7434-4457-bf24-1bf0fa478927","userId":"5544e893-1106-4669-aa80-8855b19f176d","promotionId":"dc4aedb1-aa49-492c-ae21-fab191645e65","promotionTitle":"prod e2e DIRECT","promotionType":"DIRECT","status":"APPLIED","participatedAt":"2026-08-21T04:11:19.049Z","updatedAt":"2026-08-21T04:11:19.049Z","attemptCount":1,"result":"PENDING"}]
+HTTP:200
+=== 12. 참여 취소 (DIRECT) ===
+{"id":"ff93c4ee-7434-4457-bf24-1bf0fa478927","userId":"5544e893-1106-4669-aa80-8855b19f176d","promotionId":"dc4aedb1-aa49-492c-ae21-fab191645e65","promotionTitle":"prod e2e DIRECT","promotionType":"DIRECT","status":"CANCELLED","participatedAt":"2026-08-21T04:11:19.049Z","updatedAt":"2026-08-21T04:12:03.169Z","attemptCount":1,"result":"PENDING"}
+HTTP:200
+=== 13. 재신청 (DIRECT) ===
+{"id":"ff93c4ee-7434-4457-bf24-1bf0fa478927","userId":"5544e893-1106-4669-aa80-8855b19f176d","promotionId":"dc4aedb1-aa49-492c-ae21-fab191645e65","promotionTitle":"prod e2e DIRECT","promotionType":"DIRECT","status":"REAPPLIED","participatedAt":"2026-08-21T04:11:19.049Z","updatedAt":"2026-08-21T04:12:05.995Z","attemptCount":1,"result":"PENDING"}
+HTTP:200
+=== 13-1. 취소 안된 상태에서 재신청 시도(엣지케이스, REAPPLIED 상태에 재신청) ===
+{"code":"INVALID_STATUS_TRANSITION","message":"재신청할 수 없는 상태입니다."}
+HTTP:409
+=== 14. GET /me ===
+{"id":"5544e893-1106-4669-aa80-8855b19f176d","loginId":"prod_e2e_user_1787285271","businessName":"prod e2e ���","name":"prod e2e","phone":"010-0000-0000","createdAt":"2026-08-21T04:07:55.923Z"}
+HTTP:200
+=== 15. PUT /me (ASCII 값으로 수정, 한글 회피) ===
+{"id":"5544e893-1106-4669-aa80-8855b19f176d","loginId":"prod_e2e_user_1787285271","businessName":"prod e2e biz updated","name":"prod e2e name","phone":"010-0000-0000","createdAt":"2026-08-21T04:07:55.923Z"}
+HTTP:200
+=== 16. PUT /me/password (현재 비번 틀림, 엣지케이스) ===
+{"code":"INVALID_CURRENT_PASSWORD","message":"현재 비밀번호가 올바르지 않습니다."}
+HTTP:401
+=== 17. PUT /me/password (성공) ===
+
+HTTP:200
+=== 17-1. 새 비밀번호로 재로그인 ===
+{"accessToken":"<REDACTED_JWT>","refreshToken":"<REDACTED_JWT>"}
+HTTP:200
+=== 18. GET /admin/promotions ===
+[{"id":"55588a7a-3d13-4b13-9d1a-5a9fe3ed9381","title":"prod e2e ROULETTE","type":"ROULETTE","description":"desc","startAt":"2026-08-21T03:10:37.000Z","endAt":"2026-08-28T04:10:38.000Z","status":"ONGOING","maxParticipationCount":2,"createdBy":"1e0724a8-b950-485f-8dd6-b8b269d863cb"},{"id":"dc4aedb1-aa49-492c-ae21-fab191645e65","title":"prod e2e DIRECT","type":"DIRECT","description":"desc","startAt":"2026-08-21T03:10:37.000Z","endAt":"2026-08-28T04:10:38.000Z","status":"ONGOING","maxParticipationCount":1,"createdBy":"1e0724a8-b950-485f-8dd6-b8b269d863cb"}]
+HTTP:200
+=== 19. 조기종료 (ROULETTE) ===
+{"id":"55588a7a-3d13-4b13-9d1a-5a9fe3ed9381","title":"prod e2e ROULETTE","type":"ROULETTE","description":"desc","startAt":"2026-08-21T03:10:37.000Z","endAt":"2026-08-28T04:10:38.000Z","status":"ENDED","maxParticipationCount":2,"createdBy":"1e0724a8-b950-485f-8dd6-b8b269d863cb"}
+HTTP:200
+=== 19-1. 조기종료 후 신규 참여 시도(엣지케이스) ===
+{"code":"PROMOTION_NOT_ONGOING","message":"진행 중인 프로모션이 아닙니다."}
+HTTP:409
+=== 20. 참여 현황 조회 (ROULETTE, WIN/LOSE 카운트) ===
+{"totalCount":1,"items":[{"participationId":"81f06e4d-71cd-4c98-b43c-6814f7286211","businessName":"prod e2e biz updated","name":"prod e2e name","status":"APPLIED","result":"WIN","participatedAt":"2026-08-21T04:11:40.686Z"}],"winCount":1,"loseCount":0}
+HTTP:200
+=== 21. 참여 현황 조회 (DIRECT, 카운트만) ===
+{"totalCount":1,"items":[{"participationId":"ff93c4ee-7434-4457-bf24-1bf0fa478927","businessName":"prod e2e biz updated","name":"prod e2e name","status":"REAPPLIED","result":"PENDING","participatedAt":"2026-08-21T04:11:19.049Z"}]}
+HTTP:200

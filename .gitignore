@@ -37,6 +37,7 @@ storybook-static/
 .env
 .env.*
 !.env.example
+.env.production
 
 # Logs
 logs/
