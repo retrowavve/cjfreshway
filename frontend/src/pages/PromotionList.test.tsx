@@ -76,8 +76,8 @@ describe('PromotionList', () => {
     renderList();
 
     expect(await screen.findByText('여름 특가전')).toBeInTheDocument();
-    expect(screen.getByText('DIRECT')).toBeInTheDocument();
-    expect(screen.getByText('08/01~08/31')).toBeInTheDocument();
+    expect(screen.getByText('직접 응모')).toBeInTheDocument();
+    expect(screen.getByText('진행 기간: 08/01~08/31')).toBeInTheDocument();
   });
 
   it('프로모션 카드 클릭 시 상세 화면으로 이동한다', async () => {

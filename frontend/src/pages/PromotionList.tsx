@@ -17,6 +17,9 @@ function formatPeriod(startAt: string, endAt: string): string {
 function typeBadgeClass(type: Promotion['type']): string {
   return type === 'ROULETTE' ? 'promotion-badge promotion-badge-roulette' : 'promotion-badge';
 }
+function typeLabel(type: Promotion['type']): string {
+  return type === 'ROULETTE' ? '룰렛 돌리기' : '직접 응모';
+}
 function statusLabel(status: Promotion['status']): string {
   if (status === 'ONGOING') return '진행중';
   if (status === 'UPCOMING') return '진행예정';
@@ -65,9 +68,9 @@ export default function PromotionList() {
             <div className="promotion-grid">
               {filtered.map((p) => (
                 <Link key={p.id} to={`/promotions/${p.id}`} className="promotion-card">
-                  <span className={typeBadgeClass(p.type)}>{p.type}</span>
+                  <span className={typeBadgeClass(p.type)}>{typeLabel(p.type)}</span>
                   <h3 className="promotion-title">{p.title}</h3>
-                  <p className="promotion-period">{formatPeriod(p.startAt, p.endAt)}</p>
+                  <p className="promotion-period">진행 기간: {formatPeriod(p.startAt, p.endAt)}</p>
                   <span className={statusBadgeClass(p.status)}>{statusLabel(p.status)}</span>
                 </Link>
               ))}

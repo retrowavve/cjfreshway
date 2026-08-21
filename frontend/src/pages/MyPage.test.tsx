@@ -42,6 +42,7 @@ describe('MyPage', () => {
   it('User에게는 개인정보 수정, 비밀번호 변경, 참여내역 메뉴가 모두 노출된다', () => {
     renderPage('USER');
 
+    expect(screen.getByRole('link', { name: '프로모션 목록으로 이동' })).toHaveAttribute('href', '/');
     expect(screen.getByRole('link', { name: '개인정보 수정' })).toHaveAttribute('href', '/me/info');
     expect(screen.getByRole('link', { name: '비밀번호 변경' })).toHaveAttribute('href', '/me/password');
     expect(screen.getByRole('link', { name: '내 참여내역 보기' })).toHaveAttribute('href', '/me/participations');

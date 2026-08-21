@@ -14,6 +14,7 @@ export default function MyPage() {
           <span className="account-badge-role">{role === 'ADMIN' ? '관리자' : '일반회원'}</span>
         </div>
         <nav className="mypage-menu">
+          <Link to="/" className="mypage-menu-item">프로모션 목록으로 이동</Link>
           <Link to="/me/info" className="mypage-menu-item">개인정보 수정</Link>
           <Link to="/me/password" className="mypage-menu-item">비밀번호 변경</Link>
           {role === 'USER' && (
