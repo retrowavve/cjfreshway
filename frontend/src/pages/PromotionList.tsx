@@ -68,7 +68,7 @@ export default function PromotionList() {
             <div className="promotion-grid">
               {filtered.map((p) => (
                 <Link key={p.id} to={`/promotions/${p.id}`} className="promotion-card">
-                  <div className="promotion-card-image" aria-hidden="true">이벤트 응모</div>
+                  <div className="promotion-card-image" aria-hidden="true">🎉</div>
                   <div className="promotion-card-body">
                     <span className={typeBadgeClass(p.type)}>{typeLabel(p.type)}</span>
                     <h3 className="promotion-title">{p.title}</h3>

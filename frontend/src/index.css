@@ -228,6 +228,7 @@ body {
 }
 .promotion-card-image {
   flex: 0 0 96px;
+  align-self: flex-start;
   width: 96px;
   aspect-ratio: 4 / 3;
   border-radius: 8px;
@@ -236,10 +237,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  padding: 4px;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 28px;
 }
 .promotion-card-body {
   display: flex;
