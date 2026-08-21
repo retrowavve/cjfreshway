@@ -54,6 +54,28 @@ describe('PromotionDetail', () => {
     expect(screen.queryByText(/남은 시도/)).not.toBeInTheDocument();
   });
 
+  it('ENDED 상태의 DIRECT 프로모션은 응모하기 버튼을 렌더하지 않는다', async () => {
+    (fetch as Mock).mockResolvedValueOnce(
+      jsonResponse({ ...basePromotion, type: 'DIRECT', status: 'ENDED', maxParticipationCount: 1 }, 200),
+    );
+
+    renderDetail('p1');
+
+    await screen.findByText('여름 특가전');
+    expect(screen.queryByRole('button', { name: '응모하기' })).not.toBeInTheDocument();
+  });
+
+  it('ENDED 상태의 ROULETTE 프로모션은 잔여 시도가 있어도 룰렛 실행하기 버튼을 렌더하지 않는다', async () => {
+    (fetch as Mock).mockResolvedValueOnce(
+      jsonResponse({ ...basePromotion, type: 'ROULETTE', status: 'ENDED', maxParticipationCount: 3, myAttemptCount: 1 }, 200),
+    );
+
+    renderDetail('p1');
+
+    await screen.findByText('남은 시도: 2/3회');
+    expect(screen.queryByRole('button', { name: '룰렛 실행하기' })).not.toBeInTheDocument();
+  });
+
   it('ROULETTE 프로모션은 잔여 시도 횟수와 룰렛 실행하기 버튼을 렌더한다', async () => {
     (fetch as Mock).mockResolvedValueOnce(
       jsonResponse(
@@ -130,6 +152,7 @@ describe('PromotionDetail', () => {
   });
 
   it('룰렛 실행 후 결과와 회차, 잔여 횟수가 표시된다', async () => {
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
     (fetch as Mock)
       .mockResolvedValueOnce(jsonResponse({ ...basePromotion, type: 'ROULETTE', maxParticipationCount: 3, myAttemptCount: 1 }, 200))
       .mockResolvedValueOnce(jsonResponse({ participationId: 'part1', attemptNo: 2, result: 'WIN', attemptCount: 2, maxParticipationCount: 3 }, 201));
@@ -140,6 +163,8 @@ describe('PromotionDetail', () => {
     expect(await screen.findByText('WIN')).toBeInTheDocument();
     expect(screen.getByText('이번 시도(2회차) 결과입니다')).toBeInTheDocument();
     expect(screen.getByText('남은 시도: 1/3회')).toBeInTheDocument();
+    expect(screen.getByText('🎉 축하합니다! 당첨되셨습니다! 🎉')).toBeInTheDocument();
+    expect(alertSpy).toHaveBeenCalledWith('🎉 축하합니다! 당첨되셨습니다! 🎉');
   });
 
   it('초기 로드 시 잔여 횟수가 0이면 룰렛 실행 버튼이 노출되지 않는다', async () => {

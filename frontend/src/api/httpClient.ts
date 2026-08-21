@@ -68,7 +68,7 @@ async function request<T>(path: string, options: RequestOptions): Promise<T> {
   }
 
   if (res.status === 204) return undefined as T;
-  return res.json() as Promise<T>;
+  return (await res.json().catch(() => undefined)) as T;
 }
 
 export const httpClient = {

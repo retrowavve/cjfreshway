@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { httpClient, ApiError } from '../api/httpClient';
+import Gnb from '../components/Gnb';
 import type { Participation, Promotion, RouletteResult } from '../types';
 
 function formatDate(iso: string): string {
@@ -43,16 +44,25 @@ export default function PromotionDetail() {
 
   const rouletteMutation = useMutation({
     mutationFn: () => httpClient.post<RouletteResult>(`/promotions/${id}/roulette`),
-    onSuccess: (data) => setRouletteResult(data),
+    onSuccess: (data) => {
+      setRouletteResult(data);
+      if (data.result === 'WIN') {
+        window.alert('🎉 축하합니다! 당첨되셨습니다! 🎉');
+      }
+    },
   });
 
   const maxCount = promotion?.maxParticipationCount ?? 0;
   const currentAttemptCount = rouletteResult ? rouletteResult.attemptCount : (promotion?.myAttemptCount ?? 0);
   const remaining = maxCount - currentAttemptCount;
-  const canRoulette = remaining > 0;
+  const isOngoing = promotion?.status === 'ONGOING';
+  const canApply = isOngoing && directResult !== 'APPLIED';
+  const canRoulette = isOngoing && remaining > 0;
 
   return (
-    <div className="promotion-page promotion-detail">
+    <>
+      <Gnb />
+      <div className="promotion-page promotion-detail">
       <Link to="/" className="promotion-back">← 뒤로</Link>
       {isLoading && <p>불러오는 중...</p>}
       {isError && (
@@ -63,18 +73,22 @@ export default function PromotionDetail() {
       {promotion && (
         <div className="promotion-detail-layout">
           <div className="promotion-detail-body">
-            <span className={typeBadgeClass(promotion.type)}>{promotion.type}</span>
-            <h2 className="promotion-title">{promotion.title}</h2>
-            <p className="promotion-period">기간: {formatPeriod(promotion.startAt, promotion.endAt)}</p>
-            <p className="promotion-description">{promotion.description}</p>
-            <span className={statusBadgeClass(promotion.status)}>{statusLabel(promotion.status)}</span>
+            <div className="promotion-detail-header">
+              <span className={typeBadgeClass(promotion.type)}>{promotion.type}</span>
+              <span className={statusBadgeClass(promotion.status)}>{statusLabel(promotion.status)}</span>
+              <h2 className="promotion-title">{promotion.title}</h2>
+              <p className="promotion-period">기간: {formatPeriod(promotion.startAt, promotion.endAt)}</p>
+            </div>
+            <div className="promotion-description-box">
+              <p className="promotion-description">{promotion.description}</p>
+            </div>
           </div>
           <div className="promotion-detail-action">
             {promotion.type === 'DIRECT' && (
               <>
                 {directResult === 'APPLIED' ? (
                   <p className="promotion-result-pending">응모 완료 (PENDING)</p>
-                ) : (
+                ) : canApply ? (
                   <button
                     type="button"
                     className="btn-primary"
@@ -83,7 +97,7 @@ export default function PromotionDetail() {
                   >
                     응모하기
                   </button>
-                )}
+                ) : null}
                 {applyMutation.isError && (
                   <p role="alert" className="auth-error">
                     {applyMutation.error instanceof ApiError ? applyMutation.error.message : '응모에 실패했습니다.'}
@@ -96,6 +110,9 @@ export default function PromotionDetail() {
                 <p className="promotion-remaining">남은 시도: {remaining}/{maxCount}회</p>
                 {rouletteResult && (
                   <div className="roulette-result-card">
+                    {rouletteResult.result === 'WIN' && (
+                      <p className="roulette-congrats">🎉 축하합니다! 당첨되셨습니다! 🎉</p>
+                    )}
                     <p className="roulette-result-label">🎯 결과</p>
                     <p className={rouletteResult.result === 'WIN' ? 'roulette-result-win' : 'roulette-result-lose'}>
                       {rouletteResult.result}
@@ -125,6 +142,7 @@ export default function PromotionDetail() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }
